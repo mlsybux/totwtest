@@ -198,11 +198,15 @@ class Items:
         self.canvas = Canvas(master, width=600, height=400)
         self.inv = Canvas(master, width=300, height=200, bg="gray")
         #the player's sprite and its coordinates :)
-        self.psprite = PhotoImage(file='basic_sprite.png')
+        #self.playersprite = self.canvas.create_rectangle(290, 350, 310, 370, fill="purple")
+        self.psprite = PhotoImage(file='beta_sprite.png')
+        self.pback = PhotoImage(file='beta_back.png')
+        self.pleft = PhotoImage(file='beta_left.png')
+        self.pright = PhotoImage(file='beta_right.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.psprite)
-        self.currentx1 = self.canvas.coords(self.playersprite)[0]-10
-        self.currenty1 = self.canvas.coords(self.playersprite)[1]-10
-        self.currentx2 = self.currentx1+20
+        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
+        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
+        self.currentx2 = self.currentx1 + 20
         self.currenty2 = self.currenty1 + 20
         self.bladebool = False
         self.hit = False
@@ -436,9 +440,9 @@ class Items:
         #moves the sprite
         self.canvas.move(self.playersprite, self.x, self.y)
         #sets the current coords to whatever the new coords are
-        self.currentx1 = self.canvas.coords(self.playersprite)[0]-10
-        self.currenty1 = self.canvas.coords(self.playersprite)[1]-10
-        self.currentx2 = self.currentx1+20
+        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
+        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
+        self.currentx2 = self.currentx1 + 20
         self.currenty2 = self.currenty1 + 20
         #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
         self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
@@ -464,24 +468,28 @@ class Items:
 
     def left(self, event):
         self.leftpressed = True
+        self.canvas.itemconfig(self.playersprite, image=self.pleft)
         self.facing = 3
         self.x = -5
         self.y = 0
 
     def right(self, event):
         self.rightpressed = True
+        self.canvas.itemconfig(self.playersprite, image=self.pright)
         self.facing = 1
         self.x = 5
         self.y = 0
 
     def up(self, event):
         self.uppressed = True
+        self.canvas.itemconfig(self.playersprite, image=self.pback)
         self.facing = 0
         self.x = 0
         self.y = -5
 
     def down(self, event):
         self.downpressed = True
+        self.canvas.itemconfig(self.playersprite, image=self.psprite)
         self.facing = 2
         self.x = 0
         self.y = 5
