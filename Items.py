@@ -56,6 +56,8 @@ class Bestiary:
         self.type = rtype
         self.id = rid
         self.obstacles = obs
+        #pcoords is the player coordinates in a list, given [x, y]
+        self.pcoords = [290, 350]
         #Type, Max Health, Attack
         self.bestiarylist = [["Slime", 50, 1], ["Slime King", 150, 3]]
         for x in self.bestiarylist:
@@ -132,15 +134,30 @@ class Bestiary:
     def move(self):
         if not self.alive:
             return
-        # checks if there's an obstacle in the direction it's trying to move
-        if self.x < 0 and self.hasobstacle(self.currentx1 - 5, self.currenty1, self.currentx2, self.currenty2):
+
+        # checks where the player is in relation to it
+        if self.currentx1-2 > self.pcoords[0]:
+            self.x = -2
+        elif self.currentx1+2 < self.pcoords[0]:
+            self.x = 2
+        else:
             self.x = 0
-        if self.x > 0 and self.hasobstacle(self.currentx1, self.currenty1, self.currentx2 + 5, self.currenty2):
-            self.x = 0
-        if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1 - 5, self.currentx2, self.currenty2):
-            self.y = 2
-        if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1, self.currentx2, self.currenty2 + 5):
+        if self.currenty1-2 > self.pcoords[1]:
             self.y = -2
+        elif self.currenty1+2 < self.pcoords[1]:
+            self.y = 2
+        else:
+            self.y = 0
+
+        # checks if there's an obstacle in the direction it's trying to move
+        if self.x < 0 and self.hasobstacle(self.currentx1 - 5, self.currenty1, self.currentx2 - 5, self.currenty2):
+            self.x = 0
+        if self.x > 0 and self.hasobstacle(self.currentx1 + 5, self.currenty1, self.currentx2 + 5, self.currenty2):
+            self.x = 0
+        if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1 - 5, self.currentx2, self.currenty2 - 5):
+            self.y = 0
+        if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1 + 5, self.currentx2, self.currenty2 + 5):
+            self.y = 0
 
         # moves the sprite
         self.canvas.move(self.sprite, self.x, self.y)
@@ -151,6 +168,10 @@ class Bestiary:
         self.currenty2 = self.canvas.coords(self.sprite)[3]
 
         self.canvas.after(70, self.move)
+
+    def getplayercoords(self, px, py):
+        self.pcoords[0] = px
+        self.pcoords[1] = py
 
 
     def getattack(self):
@@ -203,7 +224,7 @@ class Items:
         self.pback = PhotoImage(file='beta_back.png')
         self.pleft = PhotoImage(file='beta_left.png')
         self.pright = PhotoImage(file='beta_right.png')
-        self.playersprite = self.canvas.create_image(290, 350, image=self.psprite)
+        self.playersprite = self.canvas.create_image(290, 350, image=self.pback)
         self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
         self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
         self.currentx2 = self.currentx1 + 20
@@ -429,13 +450,15 @@ class Items:
 
     def movement(self):
         #checks if there's an obstacle in the direction it's trying to move
-        if self.x < 0 and self.hasobstacle(self.currentx1-5, self.currenty1, self.currentx2, self.currenty2):
+        if self.x < 0 and self.hasobstacle(self.currentx1-5, self.currenty1, self.currentx2-5, self.currenty2):
+            #print("obstacle to the left")
             self.x = 0
-        if self.x > 0 and self.hasobstacle(self.currentx1, self.currenty1, self.currentx2+5, self.currenty2):
+        if self.x > 0 and self.hasobstacle(self.currentx1+5, self.currenty1, self.currentx2+5, self.currenty2):
+            #print("obstacle to the right")
             self.x = 0
-        if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1-5, self.currentx2, self.currenty2):
+        if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1-5, self.currentx2, self.currenty2-5):
             self.y = 0
-        if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1, self.currentx2, self.currenty2+5):
+        if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1+5, self.currentx2, self.currenty2+5):
             self.y = 0
         #moves the sprite
         self.canvas.move(self.playersprite, self.x, self.y)
@@ -444,6 +467,12 @@ class Items:
         self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
         self.currentx2 = self.currentx1 + 20
         self.currenty2 = self.currenty1 + 20
+
+        #let enemies know where player is
+        for x in self.stack:
+            if x.gettype() == "Slime":
+                x.getplayercoords(self.currentx1, self.currenty1)
+
         #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
         self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
         for x in self.o_list:
@@ -471,29 +500,31 @@ class Items:
         self.canvas.itemconfig(self.playersprite, image=self.pleft)
         self.facing = 3
         self.x = -5
-        self.y = 0
+        #self.y = 0
 
     def right(self, event):
         self.rightpressed = True
         self.canvas.itemconfig(self.playersprite, image=self.pright)
         self.facing = 1
         self.x = 5
-        self.y = 0
+        #self.y = 0
 
     def up(self, event):
         self.uppressed = True
         self.canvas.itemconfig(self.playersprite, image=self.pback)
         self.facing = 0
-        self.x = 0
+        #self.x = 0
         self.y = -5
 
     def down(self, event):
         self.downpressed = True
         self.canvas.itemconfig(self.playersprite, image=self.psprite)
         self.facing = 2
-        self.x = 0
+        #self.x = 0
         self.y = 5
 
+    #next step: get it so when you release a key and it's still going in a seperate direction, the
+    # sprite direction and facing function changes to reflect that
     def stop(self, event, released):
         if released == "L":
             self.leftpressed = False
@@ -503,9 +534,27 @@ class Items:
             self.uppressed = False
         elif released == "D":
             self.downpressed = False
+        if not (self.leftpressed or self.rightpressed):
+            self.x = 0
+            if self.uppressed:
+                self.facing = 0
+                self.canvas.itemconfig(self.playersprite, image=self.pback)
+            elif self.downpressed:
+                self.facing = 2
+                self.canvas.itemconfig(self.playersprite, image=self.psprite)
+        if not (self.uppressed or self.downpressed):
+            self.y = 0
+            if self.leftpressed:
+                self.facing = 3
+                self.canvas.itemconfig(self.playersprite, image=self.pleft)
+            elif self.downpressed:
+                self.facing = 1
+                self.canvas.itemconfig(self.playersprite, image=self.pright)
+        """
         if not (self.leftpressed or self.rightpressed or self.uppressed or self.downpressed):
             self.x = 0
             self.y = 0
+        """
 
 #stats stuff
     def loadstats(self, n):
