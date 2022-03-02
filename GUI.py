@@ -1,8 +1,10 @@
 from tkinter import *
 from Items import Items
+from Home import Home
 
 root = Tk()
 root.title("Take Over The World!!")
+root.iconphoto(False, PhotoImage(file='beta_sprite.png'))
 #root.geometry("1200x800")
 root.geometry("600x400")
 
@@ -371,7 +373,7 @@ def credits():
                  [0, 4],
                  [creditHead, l1, backButton]]
 
-def home():
+def oldhome():
 
     root.grid_rowconfigure(0, weight=1)
     root.grid_rowconfigure(2, weight=1)
@@ -641,9 +643,34 @@ def explore():
     root.bind("<KeyRelease-Down>", lambda e: test.stop(e, "D"))
     root.bind("<KeyPress>", lambda e: goback(test, e))
 
+def homeup(c, e):
+    if c.currenty1 < -10:
+        changescreen([[],[],[c.canvas]], "Explore")
+    else:
+        c.up(e)
 
+def home_keypress(c, e):
+    if e.char == "z":
+        c.interaction()
+    elif e.char == "x" and not c.inventoryup:
+        c.showinventory()
 
+def home():
+    home = Home(root)
+    root.bind("<KeyPress-Left>", lambda e: home.left(e))
+    root.bind("<KeyPress-Right>", lambda e: home.right(e))
+    # root.bind("<KeyPress-Up>", lambda e: test.up(e))
+    root.bind("<KeyPress-Up>", lambda e: homeup(home, e))
+    # root.bind("<KeyPress-Down>", lambda e: test.down(e))
+    root.bind("<KeyPress-Down>", lambda e: checkdown(home, e))
+    root.bind("<KeyRelease-Left>", lambda e: home.stop(e, "L"))
+    root.bind("<KeyRelease-Right>", lambda e: home.stop(e, "R"))
+    root.bind("<KeyRelease-Up>", lambda e: home.stop(e, "U"))
+    root.bind("<KeyRelease-Down>", lambda e: home.stop(e, "D"))
+    root.bind("<KeyPress>", lambda e: home_keypress(home, e))
 #main running stuff
-title()
+#title()
 #explore()
+
+home()
 root.mainloop()
