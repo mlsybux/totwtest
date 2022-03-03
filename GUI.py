@@ -75,7 +75,8 @@ repeatChoices = ["YESNO", "Sounds good!", "No, something's off...", "Repeater"]
 playerName = "Ako"
 playerKingdom = "Kaharian"
 playerTitle = "Overlord"
-
+#boolean to make sure that functions don't get called multiple times before keys can be unbound
+stopkeys = False
 
 #the function to clear the old screen and call the new
 def changescreen(arr, new):
@@ -566,6 +567,7 @@ def goback(c, e):
         if c.getbosswin():
             changescreen(arr, "Win")
         else:
+            print(arr)
             changescreen(arr, "Home")
     elif e.char == "y":
         c.cuttree()
@@ -593,7 +595,8 @@ def checkup(c, e):
         c.up(e)
 
 def e_options():
-    global unlockedstages
+    global unlockedstages, stopkeys
+    stopkeys = True
     e_label = Label(root, text="Where are you going?")
     forestB = Button(root, text="Forest", command=lambda: changescreen(thisArr, "Explore Forest"))
     caveB = Button(root, text="Cave", command=lambda: changescreen(thisArr, "Explore Cave"))
@@ -643,8 +646,12 @@ def explore():
     root.bind("<KeyPress>", lambda e: goback(test, e))
 
 def homeup(c, e):
-    if c.currenty1 < 0:
-        changescreen([[], [], [c.canvas]], "Explore")
+    global stopkeys
+    if c.currenty1 < 0 and not stopkeys:
+        print("homeup's if was called")
+        stopkeys = True
+        c.back()
+        changescreen([[], [], []], "Explore")
     else:
         c.up(e)
 
@@ -655,7 +662,8 @@ def home_keypress(c, e):
         c.showinventory()
 
 def home():
-    global playerInventory
+    global playerInventory, stopkeys
+    stopkeys = False
     home = Home(root)
     home.loadinventory(playerInventory)
     root.bind("<KeyPress-Left>", lambda e: home.left(e))
