@@ -599,7 +599,6 @@ def e_options():
     caveB = Button(root, text="Cave", command=lambda: changescreen(thisArr, "Explore Cave"))
     bossB = Button(root, text="Slime King's Cave", command=lambda: changescreen(thisArr, "Boss Text"))
     backB = Button(root, text="Go Back", command=lambda: changescreen(thisArr, "Home"))
-
     if unlockedstages >= 1:
         e_label.grid(row=0, column=1)
         forestB.grid(row=2, column=0)
@@ -644,8 +643,8 @@ def explore():
     root.bind("<KeyPress>", lambda e: goback(test, e))
 
 def homeup(c, e):
-    if c.currenty1 < -10:
-        changescreen([[],[],[c.canvas]], "Explore")
+    if c.currenty1 < 0:
+        changescreen([[], [], [c.canvas]], "Explore")
     else:
         c.up(e)
 
@@ -656,7 +655,9 @@ def home_keypress(c, e):
         c.showinventory()
 
 def home():
+    global playerInventory
     home = Home(root)
+    home.loadinventory(playerInventory)
     root.bind("<KeyPress-Left>", lambda e: home.left(e))
     root.bind("<KeyPress-Right>", lambda e: home.right(e))
     # root.bind("<KeyPress-Up>", lambda e: test.up(e))

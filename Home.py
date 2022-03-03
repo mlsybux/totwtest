@@ -63,18 +63,54 @@ class Home:
         self.currentx2 = self.currentx1 + 20
         self.currenty2 = self.currenty1 + 20
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
+        #craft menu initialization
+        # wood, stone, coal, tree, swords, axes
+        self.inventory = [0, 0, 0, 0, 0, 0]
+        self.inv_val = 0
         self.craft = Canvas(master, width=400, height=300, bg="light gray")
+        self.craft_up = False
+        self.craft.create_text(190, 15, text="Crafting")
+        self.craft_right_frame = Frame(master, width=120, height=210)
+        self.craft_right_frame.grid_propagate(False)
+        self.craft_right_frame.grid_columnconfigure(0, weight=1)
+        self.axe_button = Button(self.craft_right_frame, text="Axe", width=20, command=lambda: self.craft_change(0))
+        self.sword_button = Button(self.craft_right_frame, text="Sword", width=20, command=lambda: self.craft_change(1))
+        self.axe_button.grid(row=0)
+        self.sword_button.grid(row=1)
+        self.craft_options = self.craft.create_window(275, 135, window=self.craft_right_frame)
+        self.craft_left_frame = Frame(master, width=180, height=210)
+        self.craft_left_frame.grid_propagate(False)
+        self.craft_left_frame.grid_columnconfigure(0, weight=1)
+        self.craft_left_frame.grid_rowconfigure(0, weight=1)
+        self.craft_left_frame.grid_rowconfigure(1, weight=2)
+        self.craft_left_frame.grid_rowconfigure(2, weight=2)
+        self.craft_left_frame.grid_rowconfigure(3, weight=1)
+        #array: name, description, ingredients array
+        #ing. array: id, needed
+        self.ingredient_id = ["Wood", "Stone", "Coal"]
+        self.craft_info = [["Axe", "Used to chop down trees.", [[0, 5], [1, 3]]],
+                           ["Sword", "A classic weapon.", [[0, 3], [1, 7], [2, 1]]]]
+        self.current_item = Label(self.craft_left_frame)
+        self.item_desc = Label(self.craft_left_frame)
+        self.ingredients = Label(self.craft_left_frame)
+        self.craft_button = Button(self.craft_left_frame, text="CRAFT", width=20, command=lambda: self.crafting())
+        self.current_item.grid(row=0)
+        self.item_desc.grid(row=1)
+        self.ingredients.grid(row=2)
+        self.craft_button.grid(row=3)
+        self.craft_left = self.craft.create_window(110, 135, window=self.craft_left_frame)
+        #textbox
         self.label = Label(master, bg="white", width=80, height=3)
         self.label_on = False
         self.button_up = False
         self.picup = True
         self.inv = Canvas(master, width=300, height=200, bg="gray")
         self.inventoryup = False
-        # wood, stone, coal, tree, gems, axes
-        self.inventory = [0, 0, 0, 0, 0, 0]
         self.script = []
         self.index = 0
         self.movement()
+        #self.open_craft_window()
+
 
 
     def interaction(self):
@@ -90,12 +126,18 @@ class Home:
                     self.label.grid_forget()
                     self.index = self.index + 1
                     self.choice(["Coffee", "Tea", "Water"])
-                elif self.script[self.index] == "{CRAFT}":
-                    self.label_on = True
+                elif self.script[self.index] == "{CRAFT}" and not self.button_up:
+                    self.label_on = False
+                    self.button_up = True
                     self.label.grid_forget()
-                    self.index = self.index + 1
+                    if self.index < len(self.script) - 1:
+                        self.index = self.index + 1
+                    else:
+                        self.index = 0
+                    self.craft_change(0)
                     self.craft.grid(row=1, column=1, rowspan=3, columnspan=3)
-                    self.exitB = Button(self.master, text="X", command=lambda:self.close_popup([self.craft, self.exitB]))
+                    self.exitB = Button(self.master, text="X",
+                                        command=lambda: self.close_popup([self.craft, self.exitB]))
                     self.exitB.grid(row=1, column=3, sticky=NE)
                 else:
                     self.label.configure(text=self.script[self.index])
@@ -104,12 +146,56 @@ class Home:
                 self.index = 0
                 self.label.grid_forget()
                 self.movement()
+    """
+    def open_craft_window(self):
+        self.label_on = True
+        self.label.grid_forget()
+        if self.index < len(self.script) - 1:
+            self.index = self.index + 1
+        else:
+            self.index = 0
+        self.index = 0
+        self.craft.grid(row=1, column=1, rowspan=3, columnspan=3)
+        self.exitB = Button(self.master, text="X", command=lambda: self.close_popup([self.craft, self.exitB]))
+        self.exitB.grid(row=1, column=3, sticky=NE)
+    """
+
+    def crafting(self):
+        #x = [[0, 5],[1, 3]]
+        if self.can_craft:
+            for x in self.craft_info[self.current_id][2]:
+                self.subtractitem(x[0], x[1])
+            self.additem(self.inv_val, 1)
+            self.craft_change(self.current_id)
+
+    def craft_change(self, id):
+        self.current_item.config(text=self.craft_info[id][0])
+        self.can_craft = False
+        self.checked = False
+        self.current_id = id
+        #axe: 5, sword:4
+        if id == 0:
+            self.inv_val = 5
+        elif id == 1:
+            self.inv_val = 4
+        self.item_desc.config(text="Held: " + str(self.inventory[self.inv_val]) + "\n\n" + self.craft_info[id][1])
+        self.ing_text = ""
+        for x in self.craft_info[id][2]:
+            self.ing_text += self.ingredient_id[x[0]] + ": " + str(self.inventory[x[0]]) + "/" + str(x[1]) + "\n"
+            if self.inventory[x[0]] < x[1] and not self.checked:
+                self.can_craft = False
+                self.checked = True
+            elif not self.checked:
+                self.can_craft = True
+        self.ingredients.config(text=self.ing_text)
 
 
     def close_popup(self, array):
         self.label_on = False
+        self.button_up = False
         for x in array:
             x.grid_forget()
+        self.movement()
 
 
     def choicemade(self, n, list):
@@ -135,9 +221,6 @@ class Home:
             button_list[i].grid(row=i, column=2)
             gridded_list.append(button_list[i])
             i = i + 1
-
-
-
 
 
     def movement(self):
