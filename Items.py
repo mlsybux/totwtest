@@ -491,70 +491,70 @@ class Items:
         #after 70 ticks, it calls itself again
         self.canvas.after(70, self.movement)
 
-#navigation
+    # navigation
     def back(self):
         self.canvas.grid_forget()
+
 
     def left(self, event):
         self.leftpressed = True
         self.canvas.itemconfig(self.playersprite, image=self.pleft)
         self.facing = 3
         self.x = -5
-        #self.y = 0
+        self.y = 0
 
     def right(self, event):
         self.rightpressed = True
         self.canvas.itemconfig(self.playersprite, image=self.pright)
         self.facing = 1
         self.x = 5
-        #self.y = 0
+        self.y = 0
+
 
     def up(self, event):
         self.uppressed = True
         self.canvas.itemconfig(self.playersprite, image=self.pback)
         self.facing = 0
-        #self.x = 0
+        self.x = 0
         self.y = -5
 
     def down(self, event):
         self.downpressed = True
         self.canvas.itemconfig(self.playersprite, image=self.psprite)
         self.facing = 2
-        #self.x = 0
+        self.x = 0
         self.y = 5
 
-    #next step: get it so when you release a key and it's still going in a seperate direction, the
-    # sprite direction and facing function changes to reflect that
-    def stop(self, event, released):
-        if released == "L":
+
+    def stop(self, event):
+        if event.keysym == "Left":
             self.leftpressed = False
-        elif released == "R":
+        elif event.keysym == "Right":
             self.rightpressed = False
-        elif released == "U":
+        elif event.keysym == "Up":
             self.uppressed = False
-        elif released == "D":
+        elif event.keysym == "Down":
             self.downpressed = False
         if not (self.leftpressed or self.rightpressed):
             self.x = 0
             if self.uppressed:
+                self.y = -5
                 self.facing = 0
                 self.canvas.itemconfig(self.playersprite, image=self.pback)
             elif self.downpressed:
+                self.y = 5
                 self.facing = 2
                 self.canvas.itemconfig(self.playersprite, image=self.psprite)
         if not (self.uppressed or self.downpressed):
             self.y = 0
             if self.leftpressed:
+                self.x = -5
                 self.facing = 3
                 self.canvas.itemconfig(self.playersprite, image=self.pleft)
-            elif self.downpressed:
+            elif self.rightpressed:
+                self.x = 5
                 self.facing = 1
                 self.canvas.itemconfig(self.playersprite, image=self.pright)
-        """
-        if not (self.leftpressed or self.rightpressed or self.uppressed or self.downpressed):
-            self.x = 0
-            self.y = 0
-        """
 
 #stats stuff
     def loadstats(self, n):

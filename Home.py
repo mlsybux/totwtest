@@ -1,20 +1,85 @@
 from tkinter import *
 
 class Popups:
-    def __init__(self, master, ID, inv):
+    def __init__(self, master, ID, player):
         self.master = master
         self.canvas = Canvas(self.master, width=400, height=300, bg="light gray")
-        self.inventory = inv
+        self.header = self.canvas.create_text(190, 15)
+        self.player = player
+        #self.inventory = self.player.inventory
+        self.frames_up = []
         if ID == 0:
             self.craft_screen()
             self.craft_change(0)
+        elif ID == 1:
+            self.menu_screen()
+            self.change_menu(0)
         self.canvas.grid(row=1, column=1, rowspan=3, columnspan=3)
 
+    def menu_screen(self):
+        self.canvas.itemconfigure(self.header, text="Menu")
+        self.menu_bottom_frame = Frame(self.master, width=360, height=20)
+        self.menu_bottom_frame.grid_propagate(False)
+        self.menu_bottom_frame.grid_columnconfigure(0, weight=1)
+        self.menu_bottom_frame.grid_columnconfigure(1, weight=1)
+        self.menu_bottom_frame.grid_columnconfigure(2, weight=1)
+        self.menu_bottom_frame.grid_rowconfigure(0, weight=1)
+        self.menu_button = Button(self.menu_bottom_frame, text="Menu", width=17, command=lambda: self.change_menu(0))
+        self.inv_button = Button(self.menu_bottom_frame, text="Inventory", width=17, command=lambda: self.change_menu(1))
+        self.settings_button = Button(self.menu_bottom_frame, text="Settings", width=17, command=lambda: self.change_menu(2))
+        self.menu_button.grid(row=0, column=0)
+        self.inv_button.grid(row=0, column=1)
+        self.settings_button.grid(row=0, column=2)
+        self.menu_bottom = self.canvas.create_window(5, 230, anchor=NW, window=self.menu_bottom_frame)
+        #menu specific frames
+        self.menu_stats_frame = Frame(self.master, width=300, height=100)
+        self.menu_stats_frame.grid_propagate(False)
+        self.menu_stats_frame.grid_columnconfigure(0, weight=1)
+        self.player_label = Label(self.menu_stats_frame, text="Overlord Ako of Kaharian")
+        self.stats_label = Label(self.menu_stats_frame, text="Health: 100\nStrength: 10\nFurthest Level: #\nCrowns: 1")
+        self.player_label.grid(row=0)
+        self.stats_label.grid(row=1)
+        #inventory specific frames
+        self.inv_frame = Frame(self.master, width=300, height=150)
+        self.inv_frame.grid_propagate(False)
+        self.inv_frame.grid_columnconfigure(0, weight=1)
+        self.inv_label = Label(self.inv_frame, text="Inventory: \nWood: " + str(self.player.inventory[0]) + "\nStone: "
+                                                + str(self.player.inventory[1]) + "\nCoal: " + str(self.player.inventory[2]) +
+                                                "\nAxes: " + str(self.player.inventory[5]))
+        self.inv_label.grid(row=0)
+        #settings specific frames
+        self.settings_frame = Frame(self.master, width=300, height=150)
+        self.settings_frame.grid_propagate(False)
+        self.settings_frame.grid_columnconfigure(0, weight=1)
+        self.name_button = Button(self.settings_frame, text="Change Your Name")
+        self.title_button = Button(self.settings_frame, text="Change Your Title")
+        self.kingdom_button = Button(self.settings_frame, text="Change Your Kingdom's Name")
+        self.name_button.grid(row=0)
+        self.title_button.grid(row=1)
+        self.kingdom_button.grid(row=2)
 
+
+    def change_menu(self, id):
+        for x in self.frames_up:
+            self.canvas.delete(x)
+        if id == 0:
+            self.canvas.itemconfigure(self.header, text="Menu")
+            self.menu_center = self.canvas.create_window(40, 60, anchor=NW, window=self.menu_stats_frame)
+            self.frames_up.append(self.menu_center)
+        elif id == 1:
+            self.canvas.itemconfigure(self.header, text="Inventory")
+            self.inv_center = self.canvas.create_window(40, 40, anchor=NW, window=self.inv_frame)
+            self.frames_up.append(self.inv_center)
+        elif id == 2:
+            self.canvas.itemconfigure(self.header, text="Settings")
+            self.settings_center = self.canvas.create_window(40, 40, anchor=NW, window=self.settings_frame)
+            self.frames_up.append(self.settings_center)
+
+
+#all the crafting stuff
     def craft_screen(self):
         self.inv_val = 0
-        #self.craft_up = False
-        self.canvas.create_text(190, 15, text="Crafting")
+        self.canvas.itemconfigure(self.header, text="Craft")
         self.craft_right_frame = Frame(self.master, width=120, height=210)
         self.craft_right_frame.grid_propagate(False)
         self.craft_right_frame.grid_columnconfigure(0, weight=1)
@@ -45,13 +110,12 @@ class Popups:
         self.craft_button.grid(row=3)
         self.craft_left = self.canvas.create_window(110, 135, window=self.craft_left_frame)
 
-
     def crafting(self):
         #x = [[0, 5],[1, 3]]
         if self.can_craft:
             for x in self.craft_info[self.current_id][2]:
-                self.subtractitem(x[0], x[1])
-            self.additem(self.inv_val, 1)
+                self.player.subtractitem(x[0], x[1])
+            self.player.additem(self.inv_val, 1)
             self.craft_change(self.current_id)
 
     def craft_change(self, id):
@@ -64,16 +128,56 @@ class Popups:
             self.inv_val = 5
         elif id == 1:
             self.inv_val = 4
-        self.item_desc.config(text="Held: " + str(self.inventory[self.inv_val]) + "\n\n" + self.craft_info[id][1])
+        self.item_desc.config(text="Held: " + str(self.player.inventory[self.inv_val]) + "\n\n" + self.craft_info[id][1])
         self.ing_text = ""
         for x in self.craft_info[id][2]:
-            self.ing_text += self.ingredient_id[x[0]] + ": " + str(self.inventory[x[0]]) + "/" + str(x[1]) + "\n"
-            if self.inventory[x[0]] < x[1] and not self.checked:
+            self.ing_text += self.ingredient_id[x[0]] + ": " + str(self.player.inventory[x[0]]) + "/" + str(x[1]) + "\n"
+            if self.player.inventory[x[0]] < x[1] and not self.checked:
                 self.can_craft = False
                 self.checked = True
             elif not self.checked:
                 self.can_craft = True
         self.ingredients.config(text=self.ing_text)
+"""
+    def additem(self, n, a):
+        self.inventory[n] = self.inventory[n] + a
+
+    def subtractitem(self, n, a):
+        self.inventory[n] = self.inventory[n] - a
+        if self.inventory[n] < 0:
+            self.inventory[n] = 0
+
+    def getinventory(self):
+        return self.inventory
+"""
+
+class Databanks:
+    def __init__(self, type, ID):
+        #[int x, int y, array script, sprite]
+        #kuya, craft bench
+        if type == "NPC":
+            self.array = [[100, 100, ["Hey there.", "This is just a test script, but might as well do something fun.",
+              "Uhhhh what kind of drink do you like?", "{", "{INSERT}", "I, personally, like hot cocoa."]],
+                          [400, 200, ["Time to craft!", "{CRAFT}"]]]
+            self.object = self.array[ID]
+            self.x = self.object[0]
+            self.y = self.object[1]
+            self.script = self.object[2]
+            self.sprite = PhotoImage(file='basic_sprite.png')
+        elif type == "Player":
+            self.player_data = ["Ako", "Overlord", "Kaharian", 100]
+            #wood, stone, coal, trees, swords, axe
+            self.inventory = [0, 0, 0, 0, 0, 0]
+
+    def set_player_data(self, x, n):
+        #name, title, kingdom, health
+        self.player_data[x] = n
+
+    def loadinventory(self, arr):
+        self.ind = 0
+        for x in arr:
+            self.inventory[self.ind] = x
+            self.ind += 1
 
     def additem(self, n, a):
         self.inventory[n] = self.inventory[n] + a
@@ -86,26 +190,12 @@ class Popups:
     def getinventory(self):
         return self.inventory
 
-
-class Databanks:
-    def __init__(self, ID):
-        #[int x, int y, array script, sprite]
-        #kuya, craft bench
-        self.array = [[100, 100, ["Hey there.", "This is just a test script, but might as well do something fun.",
-          "Uhhhh what kind of drink do you like?", "{", "{INSERT}", "I, personally, like hot cocoa."]],
-                      [400, 200, ["Time to craft!", "{CRAFT}"]]]
-        self.object = self.array[ID]
-        self.x = self.object[0]
-        self.y = self.object[1]
-        self.script = self.object[2]
-        self.sprite = PhotoImage(file='basic_sprite.png')
-
 #class NPC will create NPC objects that have a text, a sprite, and coordinates
 class NPC:
     def __init__(self, master, canvas, ID):
         self.master = master
         self.canvas = canvas
-        self.data = Databanks(ID)
+        self.data = Databanks("NPC", ID)
         self.excimage = PhotoImage(file='exclamation.png')
         self.npcsprite = self.canvas.create_image(self.data.x, self.data.y, image=self.data.sprite)
         self.excsprite = self.canvas.create_image(self.data.x, self.data.y-20,
@@ -123,8 +213,9 @@ class NPC:
 
 
 class Home:
-    def __init__(self, master):
+    def __init__(self, master, player):
         self.master = master
+        self.player = player
         self.x = 0
         self.y = 0
         # just saying that all the keys are released by default
@@ -151,7 +242,7 @@ class Home:
         self.currenty2 = self.currenty1 + 20
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
         # wood, stone, coal, tree, swords, axes
-        self.inventory = [0, 0, 0, 0, 0, 0]
+        self.inventory = self.player.inventory
         #textbox
         self.label = Label(master, bg="white", width=80, height=3)
         self.label_on = False
@@ -182,6 +273,8 @@ class Home:
                     self.index = self.index + 1
                     self.choice(["Coffee", "Tea", "Water"])
                 elif self.script[self.index] == "{CRAFT}" and not self.button_up:
+                    self.open_popup(0)
+                    """
                     self.label_on = False
                     self.button_up = True
                     self.label.grid_forget()
@@ -193,6 +286,7 @@ class Home:
                     self.exitB = Button(self.master, text="X",
                                         command=lambda: self.close_popup([self.craft.canvas, self.exitB]))
                     self.exitB.grid(row=1, column=3, sticky=NE)
+                    """
                 else:
                     self.label.configure(text=self.script[self.index])
             else:
@@ -200,6 +294,19 @@ class Home:
                 self.index = 0
                 self.label.grid_forget()
                 self.movement()
+
+    def open_popup(self, id):
+        self.label_on = False
+        self.button_up = True
+        self.label.grid_forget()
+        if self.index < len(self.script) - 1:
+            self.index = self.index + 1
+        else:
+            self.index = 0
+        self.popup = Popups(self.master, id, self.inventory)
+        self.exitB = Button(self.master, text="X",
+                            command=lambda: self.close_popup([self.popup.canvas, self.exitB]))
+        self.exitB.grid(row=1, column=3, sticky=NE)
 
     def close_popup(self, array):
         self.label_on = False
@@ -242,8 +349,10 @@ class Home:
         return False
 
     def movement(self):
-        if not self.label_on:
+        if not (self.label_on or self.button_up):
             # checks if there's an obstacle in the direction it's trying to move
+            if self.currenty1 <= 0:
+                self.y = 0
             if self.x < 0 and self.hasobstacle(self.currentx1 - 5, self.currenty1, self.currentx2 - 5, self.currenty2):
                 # print("obstacle to the left")
                 self.x = 0
@@ -281,6 +390,7 @@ class Home:
     def back(self):
         self.canvas.grid_forget()
 
+
     def left(self, event):
         if not (self.label_on or self.button_up):
             self.leftpressed = True
@@ -315,14 +425,14 @@ class Home:
             self.y = 5
 
 
-    def stop(self, event, released):
-        if released == "L":
+    def stop(self, event):
+        if event.keysym == "Left":
             self.leftpressed = False
-        elif released == "R":
+        elif event.keysym == "Right":
             self.rightpressed = False
-        elif released == "U":
+        elif event.keysym == "Up":
             self.uppressed = False
-        elif released == "D":
+        elif event.keysym == "Down":
             self.downpressed = False
         if not (self.leftpressed or self.rightpressed):
             self.x = 0
@@ -346,8 +456,10 @@ class Home:
                 self.canvas.itemconfig(self.playersprite, image=self.pright)
 
     # inventory stuff
+    """
     def showinventory(self):
         self.inventoryup = True
+        self.inv = Popups(self.master, 1, self.inventory)
         self.inv.grid(row=1, column=1, rowspan=3, columnspan=3)
         self.backB = Button(self.master, text="X", command=lambda: self.hideinventory())
         self.invLabel = Label(self.master, text="Inventory: \nWood: " + str(self.inventory[0]) + "\nStone: "
@@ -361,6 +473,7 @@ class Home:
         self.inv.grid_forget()
         self.invLabel.grid_forget()
         self.backB.grid_forget()
+    
 
     def loadinventory(self, arr):
         self.ind = 0
@@ -378,6 +491,7 @@ class Home:
 
     def getinventory(self):
         return self.inventory
+    """
 
     def loadborders(self):
         self.color = "green"

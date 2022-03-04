@@ -1,6 +1,6 @@
 from tkinter import *
-from Items import Items
-from Home import Home
+from Items import *
+from Home import *
 
 root = Tk()
 root.title("Take Over The World!!")
@@ -9,6 +9,7 @@ root.iconphoto(False, PhotoImage(file='beta_sprite.png'))
 root.geometry("600x400")
 
 ind = 0
+player = Databanks("Player", 0)
 #wood, stone, coal, trees, swords, axes
 playerInventory = [10, 10, 10, 0, 10, 50]
 stats = 100
@@ -116,7 +117,7 @@ def changescreen(arr, new):
         stagelevels = 0
         explore()
     elif new == "Boss Text":
-        if playerInventory[4] > 0:
+        if player.inventory[4] > 0:
             displaytext(bossscript1)
         else:
             displaytext(bossscript2)
@@ -150,10 +151,11 @@ def changescreen(arr, new):
 
 #functions for making choices with buttons/entries for the screens to call on
 def setchoice(a, t):
-    global playerTitle, currentArray, b1, b2, b3, ind
+    global playerTitle, currentArray, b1, b2, b3, ind, player
 
     if a[0] == "TITLES":
-        playerTitle = t
+        #playerTitle = t
+        player.set_player_data(1, t)
         if ind == 0:
             changescreen([[], [], [b1, b2, b3]], "Menu")
         else:
@@ -206,10 +208,11 @@ def make3choice(a):
 def setplayername(t):
     global userEnter
     global enterB
-    global playerName
+    global playerName, player
     global currentArray
     if not t == "":
-        playerName = t
+        player.set_player_data(0, t)
+        #playerName = t
     if not ind == 0:
         changescreen([[], [], [userEnter, enterB]], "")
         displaytext(currentArray)
@@ -224,7 +227,8 @@ def setkingdomname(t):
     global playerKingdom
     global currentArray
     if not t == "":
-        playerKingdom = t
+        #playerKingdom = t
+        player.set_player_data(2, t)
     if not ind == 0:
         changescreen([[], [], [userEnter, enterB]], "")
         displaytext(currentArray)
@@ -248,7 +252,7 @@ def enterchoice(x):
 
 
 def lineprocess(text):
-    global namebox
+    global namebox, player
     global nameon
     if '::' in text:
         if not nameon:
@@ -257,17 +261,17 @@ def lineprocess(text):
         cind = text.index('::')
         namebox.config(text=text[:cind])
         if text[:cind] == "Player":
-            namebox.config(text=playerName)
+            namebox.config(text=player.player_data[0])
         proText = text[cind+2:]
     else:
         if nameon:
             nameon = False
             namebox.grid_forget()
         proText = text
-    proText = proText.replace("{playerName}", playerName)
-    proText = proText.replace("{playerTitle}", playerTitle)
-    proText = proText.replace("{playerKingdom}", playerKingdom)
-    proText = proText.replace("{s}", str(playerInventory[4]))
+    proText = proText.replace("{playerName}", player.player_data[0])
+    proText = proText.replace("{playerTitle}", player.player_data[1])
+    proText = proText.replace("{playerKingdom}", player.player_data[2])
+    proText = proText.replace("{s}", str(player.inventory[4]))
     proText = linebreaker(proText)
     return proText
 
@@ -412,7 +416,7 @@ def oldhome():
 
     thisArray = [[], [], [homecanvas]]
     """
-
+"""
 def craftitem(itemname, itemlabel):
     if itemname == "Axe" and playerInventory[0] >= 5 and playerInventory[1] >= 3:
         playerInventory[0] = playerInventory[0] - 5
@@ -504,7 +508,7 @@ def options():
                  [],
                  [changeName, changeTitle, changeKingdom, backB]]
 
-"""
+
 def choosefighter():
     removeB = Button(root, text="Remove")
     
@@ -556,8 +560,8 @@ def goback(c, e):
     if e == "x" or e.char == "x":
         i = 0
         stats = 100
-        while i < len(playerInventory):
-            playerInventory[i] = c.getinventory()[i]
+        while i < len(player.inventory):
+            player.inventory[i] = c.getinventory()[i]
             i = i + 1
         c.back()
         root.unbind("<KeyPress-Down>")
@@ -567,7 +571,6 @@ def goback(c, e):
         if c.getbosswin():
             changescreen(arr, "Win")
         else:
-            print(arr)
             changescreen(arr, "Home")
     elif e.char == "y":
         c.cuttree()
@@ -586,8 +589,8 @@ def checkup(c, e):
     if c.currenty1 < -10:
         i = 0
         stats = c.getstats()
-        while i < len(playerInventory):
-            playerInventory[i] = c.getinventory()[i]
+        while i < len(player.inventory):
+            player.inventory[i] = c.getinventory()[i]
             i = i + 1
         c.back()
         explore()
@@ -620,7 +623,7 @@ def explore():
     stagelevels = stagelevels + 1
     test = Items(root, stagelevels, chosen_envi)
     if chosen_envi == "Boss Fight":
-        test.kuya(playerInventory[4])
+        test.kuya(player.inventory[4])
     if higheststagelevel < stagelevels:
         higheststagelevel = stagelevels
         if higheststagelevel == 5:
@@ -631,7 +634,7 @@ def explore():
         changescreen(goArray, "ETalk2")
     else:
         newhighestcutscene = 0
-    test.loadinventory(playerInventory)
+    test.loadinventory(player.inventory)
     test.loadstats(stats)
     root.bind("<KeyPress-Left>", lambda e: test.left(e))
     root.bind("<KeyPress-Right>", lambda e: test.right(e))
@@ -639,10 +642,10 @@ def explore():
     root.bind("<KeyPress-Up>", lambda e: checkup(test, e))
     #root.bind("<KeyPress-Down>", lambda e: test.down(e))
     root.bind("<KeyPress-Down>", lambda e: checkdown(test, e))
-    root.bind("<KeyRelease-Left>", lambda e: test.stop(e, "L"))
-    root.bind("<KeyRelease-Right>", lambda e: test.stop(e, "R"))
-    root.bind("<KeyRelease-Up>", lambda e: test.stop(e, "U"))
-    root.bind("<KeyRelease-Down>", lambda e: test.stop(e, "D"))
+    root.bind("<KeyRelease-Left>", lambda e: test.stop(e))
+    root.bind("<KeyRelease-Right>", lambda e: test.stop(e))
+    root.bind("<KeyRelease-Up>", lambda e: test.stop(e))
+    root.bind("<KeyRelease-Down>", lambda e: test.stop(e))
     root.bind("<KeyPress>", lambda e: goback(test, e))
 
 def homeup(c, e):
@@ -655,27 +658,45 @@ def homeup(c, e):
     else:
         c.up(e)
 
+def movement(c, e, press):
+    global stopkeys
+    if c.currenty1 <= 0 and not stopkeys:
+        stopkeys = True
+        c.back()
+        changescreen([[], [], []], "Explore")
+    if press:
+        if e.keysym == "Up":
+            c.up(e)
+        elif e.keysym == "Down":
+            c.down(e)
+        elif e.keysym == "Left":
+            c.left(e)
+        elif e.keysym == "Right":
+            c.right(e)
+    else:
+        c.stop(e)
+
 def home_keypress(c, e):
     if e.char == "z":
         c.interaction()
-    elif e.char == "x" and not c.inventoryup:
-        c.showinventory()
+    elif e.char == "x" and not c.button_up and not c.label_on:
+        c.open_popup(1)
 
 def home():
-    global playerInventory, stopkeys
+    global player, stopkeys
     stopkeys = False
-    home = Home(root)
-    home.loadinventory(playerInventory)
-    root.bind("<KeyPress-Left>", lambda e: home.left(e))
-    root.bind("<KeyPress-Right>", lambda e: home.right(e))
+    home = Home(root, player)
+    #home.loadinventory(player.inventory)
+    root.bind("<KeyPress-Left>", lambda e: movement(home, e, True))
+    root.bind("<KeyPress-Right>", lambda e: movement(home, e, True))
     # root.bind("<KeyPress-Up>", lambda e: test.up(e))
-    root.bind("<KeyPress-Up>", lambda e: homeup(home, e))
+    root.bind("<KeyPress-Up>", lambda e: movement(home, e, True))
     # root.bind("<KeyPress-Down>", lambda e: test.down(e))
-    root.bind("<KeyPress-Down>", lambda e: checkdown(home, e))
-    root.bind("<KeyRelease-Left>", lambda e: home.stop(e, "L"))
-    root.bind("<KeyRelease-Right>", lambda e: home.stop(e, "R"))
-    root.bind("<KeyRelease-Up>", lambda e: home.stop(e, "U"))
-    root.bind("<KeyRelease-Down>", lambda e: home.stop(e, "D"))
+    root.bind("<KeyPress-Down>", lambda e: movement(home, e, True))
+    root.bind("<KeyRelease-Left>", lambda e: movement(home, e, False))
+    root.bind("<KeyRelease-Right>", lambda e: movement(home, e, False))
+    root.bind("<KeyRelease-Up>", lambda e: movement(home, e, False))
+    root.bind("<KeyRelease-Down>", lambda e: movement(home, e, False))
     root.bind("<KeyPress>", lambda e: home_keypress(home, e))
 #main running stuff
 #title()
