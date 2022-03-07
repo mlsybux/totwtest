@@ -11,10 +11,12 @@ root.geometry("600x400")
 ind = 0
 player = Databanks("Player", 0)
 #wood, stone, coal, trees, swords, axes
-playerInventory = [10, 10, 10, 0, 10, 50]
+#playerInventory = [10, 10, 10, 0, 10, 50]
+player.loadinventory([15, 9, 0, 0, 0, 50])
 stats = 100
 chosen_envi = "Forest"
 unlockedstages = 1
+stagelevels = 0
 
 higheststagelevel = 0
 newhighestcutscene = 0
@@ -102,7 +104,11 @@ def changescreen(arr, new):
     elif new == "Options":
         options()
     elif new == "Explore":
-        e_options()
+        gameover()
+        explore()
+        #stagelevels = 0
+        #e_options()
+
     elif new == "Explore Continue":
         gameover()
         explore()
@@ -317,7 +323,7 @@ def buttonclicked(a):
             changescreen(thisarr, "Boss Fight")
         elif a[ind] == "EXPLORE":
             ind = 0
-            changescreen(thisarr, "Explore Continue")
+            changescreen(thisarr, "Explore")
         else:
             textbox.config(text=lineprocess(currentArray[ind]))
     else:
@@ -555,15 +561,16 @@ def gameover():
     goArray = [[0, 2, 4], [0, 4], [gameoverlabel, backB, titleB]]
 
 def goback(c, e):
-    global goArray
+    global goArray, stagelevels
     global stats
-    if e == "x" or e.char == "x":
+    if e == "q" or e.char == "q":
         i = 0
         stats = 100
         while i < len(player.inventory):
             player.inventory[i] = c.getinventory()[i]
             i = i + 1
         c.back()
+        stagelevels = 0
         root.unbind("<KeyPress-Down>")
         root.unbind("<KeyPress-Up>")
         root.unbind("<KeyPress>")
@@ -572,15 +579,15 @@ def goback(c, e):
             changescreen(arr, "Win")
         else:
             changescreen(arr, "Home")
-    elif e.char == "y":
+    elif e.char == "v":
         c.cuttree()
-    elif e.char == "i" and not c.inventoryup:
-        c.showinventory()
+    elif e.char == "x" and not c.inventoryup:
+        c.open_popup(1)
 
 
 def checkdown(c, e):
     if c.currenty2 > 410:
-        goback(c, "x")
+        goback(c, "q")
     else:
         c.down(e)
 
@@ -619,9 +626,10 @@ def e_options():
 
 
 def explore():
-    global stagelevels, higheststagelevel, newhighestcutscene, stats, goArray, chosen_envi
+    global stagelevels, higheststagelevel, newhighestcutscene, stats, goArray, player
+    stopkeys = True
     stagelevels = stagelevels + 1
-    test = Items(root, stagelevels, chosen_envi)
+    test = Items(root, stagelevels, player)
     if chosen_envi == "Boss Fight":
         test.kuya(player.inventory[4])
     if higheststagelevel < stagelevels:
@@ -681,6 +689,9 @@ def home_keypress(c, e):
         c.interaction()
     elif e.char == "x" and not c.button_up and not c.label_on:
         c.open_popup(1)
+    elif e.char == "q" and not c.button_up and not c.label_on:
+        c.back()
+        changescreen([[], [], []], "Title")
 
 def home():
     global player, stopkeys

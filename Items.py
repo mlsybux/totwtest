@@ -1,5 +1,6 @@
 from tkinter import *
 from random import *
+from Home import *
 
 
 class Resource:
@@ -68,7 +69,9 @@ class Bestiary:
         self.sprite = self.randomsprite()
         self.alive = True
         self.x = 0
-        self.y = -2
+        self.y = 0
+        self.differenceX = 0
+        self.differenceY = 0
         self.currentx1 = self.canvas.coords(self.sprite)[0]
         self.currenty1 = self.canvas.coords(self.sprite)[1]
         self.currentx2 = self.canvas.coords(self.sprite)[2]
@@ -135,19 +138,29 @@ class Bestiary:
         if not self.alive:
             return
 
-        # checks where the player is in relation to it
+        # checks where the player is in relation to it, moves in the direction that's currently the furthest
         if self.currentx1-2 > self.pcoords[0]:
+            self.differenceX = self.currentx2 - self.pcoords[0]
             self.x = -2
         elif self.currentx1+2 < self.pcoords[0]:
+            self.differenceX = self.pcoords[0] - self.currentx1+2
             self.x = 2
         else:
+            self.differenceX=0
             self.x = 0
         if self.currenty1-2 > self.pcoords[1]:
+            self.differenceY = self.currenty1-2 - self.pcoords[1]
             self.y = -2
         elif self.currenty1+2 < self.pcoords[1]:
+            self.differenceY = self.pcoords[1] - self.currenty1+2
             self.y = 2
         else:
+            self.differenceY = 0
             self.y = 0
+        if self.differenceX > self.differenceY:
+            self.y = 0
+        else:
+            self.x = 0
 
         # checks if there's an obstacle in the direction it's trying to move
         if self.x < 0 and self.hasobstacle(self.currentx1 - 5, self.currenty1, self.currentx2 - 5, self.currenty2):
@@ -198,16 +211,22 @@ class Bestiary:
 
 
 class Items:
-    def __init__(self, master, l, environment):
+    def __init__(self, master, l, player):
         #Tk
         self.master = master
-        self.environment = environment
+        self.player = player
         #wood, stone, coal, tree, gems, axes
         self.inventory = [0, 0, 0, 0, 0, 0]
         #x and y are the movement
         self.x = 0
         self.y = 0
         self.level = l
+        if self.level <= 7:
+            self.environment = "Forest"
+        elif 12 >= self.level > 7:
+            self.environment = "Cave"
+        elif self.level > 12:
+            self.environment = "Boss Fight"
         #just saying that all the keys are released by default
         self.leftpressed = False
         self.rightpressed = False
@@ -243,7 +262,7 @@ class Items:
         self.stack = []
         #self.maketree()
         self.loadborders()
-
+        self.level_text = self.canvas.create_text(50, 10, text="Stage Level: " + str(self.level), fill="white")
         if self.environment == "Forest":
             if self.level <= 3:
                 self.spawnitems([5, 3, 2, 2])
@@ -255,6 +274,7 @@ class Items:
                 self.loadenemies(2)
         elif self.environment == "Cave":
             self.spawnitems([0, 6, 5, 0])
+            self.loadenemies(1)
         elif self.environment == "Boss Fight":
             #self.loadenemies(5)
             self.bossfight()
@@ -300,7 +320,10 @@ class Items:
 
 
     def kuya(self, swords):
-        self.boss.specialdamage(5*swords)
+        if swords <= 5:
+            self.boss.specialdamage(5*swords)
+        else:
+            self.boss.specialdamage(25)
 
     def loadenemies(self, a):
         self.acounter = 0
@@ -449,47 +472,48 @@ class Items:
         return False
 
     def movement(self):
-        #checks if there's an obstacle in the direction it's trying to move
-        if self.x < 0 and self.hasobstacle(self.currentx1-5, self.currenty1, self.currentx2-5, self.currenty2):
-            #print("obstacle to the left")
-            self.x = 0
-        if self.x > 0 and self.hasobstacle(self.currentx1+5, self.currenty1, self.currentx2+5, self.currenty2):
-            #print("obstacle to the right")
-            self.x = 0
-        if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1-5, self.currentx2, self.currenty2-5):
-            self.y = 0
-        if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1+5, self.currentx2, self.currenty2+5):
-            self.y = 0
-        #moves the sprite
-        self.canvas.move(self.playersprite, self.x, self.y)
-        #sets the current coords to whatever the new coords are
-        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-        self.currentx2 = self.currentx1 + 20
-        self.currenty2 = self.currenty1 + 20
+        if not self.inventoryup:
+            #checks if there's an obstacle in the direction it's trying to move
+            if self.x < 0 and self.hasobstacle(self.currentx1-5, self.currenty1, self.currentx2-5, self.currenty2):
+                #print("obstacle to the left")
+                self.x = 0
+            if self.x > 0 and self.hasobstacle(self.currentx1+5, self.currenty1, self.currentx2+5, self.currenty2):
+                #print("obstacle to the right")
+                self.x = 0
+            if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1-5, self.currentx2, self.currenty2-5):
+                self.y = 0
+            if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1+5, self.currentx2, self.currenty2+5):
+                self.y = 0
+            #moves the sprite
+            self.canvas.move(self.playersprite, self.x, self.y)
+            #sets the current coords to whatever the new coords are
+            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
+            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
+            self.currentx2 = self.currentx1 + 20
+            self.currenty2 = self.currenty1 + 20
 
-        #let enemies know where player is
-        for x in self.stack:
-            if x.gettype() == "Slime":
-                x.getplayercoords(self.currentx1, self.currenty1)
+            #let enemies know where player is
+            for x in self.stack:
+                if x.gettype() == "Slime":
+                    x.getplayercoords(self.currentx1, self.currenty1)
 
-        #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
-        self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
-        for x in self.o_list:
-            for a in self.stack:
-                if a.getid() == x and x in self.resources:
-                    if a.gettype() == "Wood":
-                        self.additem(0, 3)
-                    elif a.gettype() == "Stone":
-                        self.additem(1, 3)
-                    elif a.gettype() == "Coal":
-                        self.additem(2, 2)
-                    a.removesprite()
-                elif a.getid() == x and x in self.enemies:
-                    if a.gettype() == "Slime" or a.gettype() == "Slime King":
-                        self.changehealth(-a.getattack())
-        #after 70 ticks, it calls itself again
-        self.canvas.after(70, self.movement)
+            #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
+            self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
+            for x in self.o_list:
+                for a in self.stack:
+                    if a.getid() == x and x in self.resources:
+                        if a.gettype() == "Wood":
+                            self.additem(0, 3)
+                        elif a.gettype() == "Stone":
+                            self.additem(1, 3)
+                        elif a.gettype() == "Coal":
+                            self.additem(2, 2)
+                        a.removesprite()
+                    elif a.getid() == x and x in self.enemies:
+                        if a.gettype() == "Slime" or a.gettype() == "Slime King":
+                            self.changehealth(-a.getattack())
+            #after 70 ticks, it calls itself again
+            self.canvas.after(70, self.movement)
 
     # navigation
     def back(self):
@@ -565,6 +589,21 @@ class Items:
         return self.health
 
 #inventory stuff
+
+    def open_popup(self, id):
+        self.inventoryup = True
+        self.popup = Popups(self.master, id, self.player)
+        self.exitB = Button(self.master, text="X",
+                            command=lambda: self.close_popup([self.popup.canvas, self.exitB]))
+        self.exitB.grid(row=1, column=3, sticky=NE)
+
+    def close_popup(self, array):
+        self.inventoryup = False
+        for x in array:
+            x.grid_forget()
+        self.movement()
+
+
     def showinventory(self):
         self.inventoryup = True
         self.inv.grid(row=1, column=1, rowspan=3, columnspan=3)
