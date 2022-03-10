@@ -7,6 +7,7 @@ root.title("Take Over The World!!")
 root.iconphoto(False, PhotoImage(file='beta_sprite.png'))
 #root.geometry("1200x800")
 root.geometry("600x400")
+root.grid_propagate(False)
 
 ind = 0
 player = Databanks("Player", 0)
@@ -110,16 +111,13 @@ def changescreen(arr, new):
         #e_options()
 
     elif new == "Explore Continue":
-        gameover()
         explore()
     elif new == "Explore Forest":
         chosen_envi = "Forest"
-        gameover()
         stagelevels = 0
         explore()
     elif new == "Explore Cave":
         chosen_envi = "Cave"
-        gameover()
         stagelevels = 0
         explore()
     elif new == "Boss Text":
@@ -129,7 +127,6 @@ def changescreen(arr, new):
             displaytext(bossscript2)
     elif new == "Boss Fight":
         chosen_envi = "Boss Fight"
-        gameover()
         stagelevels = 0
         explore()
     elif new == "Win":
@@ -547,38 +544,45 @@ def prepwar():
 
 def gameover():
     global goArray
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_rowconfigure(2, weight=1)
-    root.grid_rowconfigure(4, weight=1)
-    root.grid_columnconfigure(0, weight=1)
-    root.grid_columnconfigure(4, weight=1)
+    root.grid_rowconfigure(0, weight=1, uniform="a")
+    root.grid_rowconfigure(2, weight=1, uniform="a")
+    root.grid_rowconfigure(4, weight=1, uniform="a")
+    root.grid_rowconfigure(1, weight=1, uniform="a")
+    root.grid_rowconfigure(3, weight=1, uniform="a")
+    root.grid_columnconfigure(0, weight=1, uniform="a")
+    root.grid_columnconfigure(4, weight=1, uniform="a")
+    root.grid_columnconfigure(1, weight=1, uniform="a")
+    root.grid_columnconfigure(2, weight=1, uniform="a")
+    root.grid_columnconfigure(3, weight=1, uniform="a")
     gameoverlabel = Label(root, text="GAME OVER")
     gameoverlabel.grid(row=1, column=2)
     backB = Button(root, text="Back to Home", command=lambda: changescreen(goArray, "Home"))
     titleB = Button(root, text="Quit to Title", command=lambda: changescreen(goArray, "Title"))
-    backB.grid(row=2, column=1)
-    titleB.grid(row=2, column=3)
-    goArray = [[0, 2, 4], [0, 4], [gameoverlabel, backB, titleB]]
+    backB.grid(row=2, column=2)
+    titleB.grid(row=3, column=2)
+    goArray = [[0, 1, 2, 3, 4], [0, 1, 2, 3, 4], [gameoverlabel, backB, titleB]]
+
 
 def goback(c, e):
-    global goArray, stagelevels
+    global stagelevels, goArray
     global stats
     if e == "q" or e.char == "q":
+        """
         i = 0
         stats = 100
         while i < len(player.inventory):
             player.inventory[i] = c.getinventory()[i]
             i = i + 1
+        """
         c.back()
         stagelevels = 0
         root.unbind("<KeyPress-Down>")
         root.unbind("<KeyPress-Up>")
         root.unbind("<KeyPress>")
-        arr = goArray
         if c.getbosswin():
-            changescreen(arr, "Win")
+            changescreen(goArray, "Win")
         else:
-            changescreen(arr, "Home")
+            changescreen([[], [], []], "Home")
     elif e.char == "v":
         c.cuttree()
     elif e.char == "x" and not c.inventoryup:
@@ -592,13 +596,15 @@ def checkdown(c, e):
         c.down(e)
 
 def checkup(c, e):
-    global stats, newhighestcutscene, goArray, chosen_envi
+    #global stats, newhighestcutscene, chosen_envi
     if c.currenty1 < -10:
+        """
         i = 0
         stats = c.getstats()
         while i < len(player.inventory):
             player.inventory[i] = c.getinventory()[i]
             i = i + 1
+        """
         c.back()
         explore()
     else:
@@ -626,10 +632,17 @@ def e_options():
 
 
 def explore():
-    global stagelevels, higheststagelevel, newhighestcutscene, stats, goArray, player
+    #global stagelevels, higheststagelevel, newhighestcutscene, stats, goArray, player
+    global stagelevels, stopkeys, higheststagelevel, player
     stopkeys = True
     stagelevels = stagelevels + 1
     test = Items(root, stagelevels, player)
+    if player.player_data[5] < stagelevels:
+        player.set_player_data(5, stagelevels)
+    """
+    if higheststagelevel < stagelevels:
+        higheststagelevel = stagelevels
+   
     if chosen_envi == "Boss Fight":
         test.kuya(player.inventory[4])
     if higheststagelevel < stagelevels:
@@ -642,8 +655,9 @@ def explore():
         changescreen(goArray, "ETalk2")
     else:
         newhighestcutscene = 0
-    test.loadinventory(player.inventory)
-    test.loadstats(stats)
+    #test.loadinventory(player.inventory)
+    #test.loadstats(stats)
+    """
     root.bind("<KeyPress-Left>", lambda e: test.left(e))
     root.bind("<KeyPress-Right>", lambda e: test.right(e))
     #root.bind("<KeyPress-Up>", lambda e: test.up(e))
@@ -711,7 +725,7 @@ def home():
     root.bind("<KeyPress>", lambda e: home_keypress(home, e))
 #main running stuff
 #title()
+#gameover()
 #explore()
-
 home()
 root.mainloop()

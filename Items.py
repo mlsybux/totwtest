@@ -216,7 +216,7 @@ class Items:
         self.master = master
         self.player = player
         #wood, stone, coal, tree, gems, axes
-        self.inventory = [0, 0, 0, 0, 0, 0]
+        #self.inventory = [0, 0, 0, 0, 0, 0]
         #x and y are the movement
         self.x = 0
         self.y = 0
@@ -236,7 +236,7 @@ class Items:
         self.facing = 0
         #this is the canvas NOT THE TK
         self.canvas = Canvas(master, width=600, height=400)
-        self.inv = Canvas(master, width=300, height=200, bg="gray")
+        #self.inv = Canvas(master, width=300, height=200, bg="gray")
         #the player's sprite and its coordinates :)
         #self.playersprite = self.canvas.create_rectangle(290, 350, 310, 370, fill="purple")
         self.psprite = PhotoImage(file='beta_sprite.png')
@@ -260,7 +260,6 @@ class Items:
         self.enemies = {}
         self.dictionaries = [self.resources, self.obstacles, self.enemies]
         self.stack = []
-        #self.maketree()
         self.loadborders()
         self.level_text = self.canvas.create_text(50, 10, text="Stage Level: " + str(self.level), fill="white")
         if self.environment == "Forest":
@@ -364,13 +363,13 @@ class Items:
         self.by1 = self.canvas.coords(self.blade)[1]
         self.bx2 = self.canvas.coords(self.blade)[2]
         self.by2 = self.canvas.coords(self.blade)[3]
-        if self.inventory[5] >= 1:
+        if self.player.inventory[5] >= 1:
             for x in self.overlaps(self.canvas.coords(self.blade)[0], self.canvas.coords(self.blade)[1],
                                    self.canvas.coords(self.blade)[2], self.canvas.coords(self.blade)[3]):
                 for a in self.stack:
                     if a.gettype() == "Tree" and a.getid() == x:
-                        self.additem(0, 5)
-                        self.subtractitem(5, 1)
+                        self.player.additem(0, 5)
+                        self.player.subtractitem(5, 1)
                         a.removesprite()
                     elif a.gettype() == "Slime" and a.getid() == x:
                         if not self.hit:
@@ -380,7 +379,6 @@ class Items:
                         if not self.hit:
                             self.hit = True
                             a.damage(10)
-
 
         if (self.facing == 2 and self.bx1 <= self.currentx1) or (self.facing == 0 and self.bx2 >= self.currentx2)\
                 or (self.facing == 3 and self.by1 <= self.currenty1) or (self.facing == 1 and self.by2 >= self.currenty2):
@@ -503,11 +501,11 @@ class Items:
                 for a in self.stack:
                     if a.getid() == x and x in self.resources:
                         if a.gettype() == "Wood":
-                            self.additem(0, 3)
+                            self.player.additem(0, 3)
                         elif a.gettype() == "Stone":
-                            self.additem(1, 3)
+                            self.player.additem(1, 3)
                         elif a.gettype() == "Coal":
-                            self.additem(2, 2)
+                            self.player.additem(2, 2)
                         a.removesprite()
                     elif a.getid() == x and x in self.enemies:
                         if a.gettype() == "Slime" or a.gettype() == "Slime King":
@@ -580,6 +578,7 @@ class Items:
                 self.facing = 1
                 self.canvas.itemconfig(self.playersprite, image=self.pright)
 
+    """
 #stats stuff
     def loadstats(self, n):
         self.health = n
@@ -587,7 +586,7 @@ class Items:
 
     def getstats(self):
         return self.health
-
+    """
 #inventory stuff
 
     def open_popup(self, id):
@@ -604,6 +603,8 @@ class Items:
         self.movement()
 
 
+
+    """
     def showinventory(self):
         self.inventoryup = True
         self.inv.grid(row=1, column=1, rowspan=3, columnspan=3)
@@ -636,3 +637,4 @@ class Items:
 
     def getinventory(self):
         return self.inventory
+    """

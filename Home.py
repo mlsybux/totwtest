@@ -42,7 +42,11 @@ class Popups:
         self.player_label = Label(self.menu_stats_frame, text=self.player.player_data[1] + " " +
                                                               self.player.player_data[0] + " of " +
                                                               self.player.player_data[2] + " Kingdom")
-        self.stats_label = Label(self.menu_stats_frame, text="Health: 100\nStrength: 10\nFurthest Level: #\nCrowns: 1")
+        #self.stats_label = Label(self.menu_stats_frame, text="Health: 100\nStrength: 10\nFurthest Level: #\nCrowns: 1")
+        self.stats_label = Label(self.menu_stats_frame, text="Health: " + str(self.player.player_data[3]) +
+                                                             "\nStrength: " + str(self.player.player_data[4]) +
+                                                             "\nFurthest Level: " + str(self.player.player_data[5]) +
+                                                             "\nCrowns: " + str(self.player.player_data[6]))
         self.player_label.grid(row=0)
         self.stats_label.grid(row=1)
         #inventory specific frames
@@ -72,6 +76,7 @@ class Popups:
                                                               "\n\nExplore:\nReturn to Home = Q\nCut = V\nOpen Menu = X")
         self.controls_label.grid(column=0)
         #changing player name stuff
+        self.back_b = Button(self.master, text="Go Back", command=lambda: self.change_menu(2))
         self.name_frame = Frame(self.master, width=300, height=150)
         self.name_frame.grid_propagate(False)
         self.name_frame.grid_columnconfigure(0, weight=1)
@@ -119,14 +124,20 @@ class Popups:
         elif id == 3:
             self.canvas.itemconfigure(self.header, text="Change Your Name")
             self.name_center = self.canvas.create_window(40, 40, anchor=NW, window=self.name_frame)
+            self.back_frame = self.canvas.create_window(160, 195, anchor=NW, window=self.back_b)
+            self.frames_up.append(self.back_frame)
             self.frames_up.append(self.name_center)
         elif id == 4:
             self.canvas.itemconfigure(self.header, text="Change Your Title")
             self.title_center = self.canvas.create_window(40, 40, anchor=NW, window=self.title_frame)
+            self.back_frame = self.canvas.create_window(160, 195, anchor=NW, window=self.back_b)
+            self.frames_up.append(self.back_frame)
             self.frames_up.append(self.title_center)
         elif id == 5:
             self.canvas.itemconfigure(self.header, text="Change Your Kingdom's Name")
             self.kname_center = self.canvas.create_window(40, 40, anchor=NW, window=self.kname_frame)
+            self.back_frame = self.canvas.create_window(160, 195, anchor=NW, window=self.back_b)
+            self.frames_up.append(self.back_frame)
             self.frames_up.append(self.kname_center)
         elif id == 6:
             self.canvas.itemconfigure(self.header, text="Controls")
@@ -139,6 +150,10 @@ class Popups:
         self.player_label.configure(text=self.player.player_data[1] + " " +
                                                               self.player.player_data[0] + " of " +
                                                               self.player.player_data[2] + " Kingdom")
+        self.stats_label.configure(text="Health: " + str(self.player.player_data[3]) +
+                                                             "\nStrength: " + str(self.player.player_data[4]) +
+                                                             "\nFurthest Level: " + str(self.player.player_data[5]) +
+                                                             "\nCrowns: " + str(self.player.player_data[6]))
         self.change_menu(2)
 
 
@@ -207,6 +222,7 @@ class Popups:
         self.ingredients.config(text=self.ing_text)
 
 
+
 class Databanks:
     def __init__(self, type, ID):
         #[int x, int y, array script, sprite]
@@ -221,7 +237,8 @@ class Databanks:
             self.script = self.object[2]
             self.sprite = PhotoImage(file='basic_sprite.png')
         elif type == "Player":
-            self.player_data = ["Ako", "Overlord", "Kaharian", 100]
+            #name, title, kingdom, health, attack, furthest level, crowns
+            self.player_data = ["Ako", "Overlord", "Kaharian", 100, 10, 0, 1]
             #wood, stone, coal, trees, swords, axe
             self.inventory = [0, 0, 0, 0, 0, 0]
 
