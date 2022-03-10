@@ -239,12 +239,27 @@ class Databanks:
         elif type == "Player":
             #name, title, kingdom, health, attack, furthest level, crowns
             self.player_data = ["Ako", "Overlord", "Kaharian", 100, 10, 0, 1]
+            self.current_data = [100]
             #wood, stone, coal, trees, swords, axe
             self.inventory = [0, 0, 0, 0, 0, 0]
 
     def set_player_data(self, x, n):
         #name, title, kingdom, health
         self.player_data[x] = n
+
+    def get_current_health(self):
+        return self.current_data[0]
+
+    def reset_health(self):
+        self.current_data[0] = self.player_data[3]
+
+    def change_current_health(self, n):
+        self.current_data[0] = self.current_data[0] + n
+
+        if self.current_data[0] > self.player_data[3]:
+            self.current_data[0] = self.player_data[3]
+        if self.current_data[0] < 0:
+            self.current_data[0] = 0
 
     def loadinventory(self, arr):
         self.ind = 0

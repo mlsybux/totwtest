@@ -554,6 +554,9 @@ def gameover():
     root.grid_columnconfigure(1, weight=1, uniform="a")
     root.grid_columnconfigure(2, weight=1, uniform="a")
     root.grid_columnconfigure(3, weight=1, uniform="a")
+    root.unbind("<KeyPress-Down>")
+    root.unbind("<KeyPress-Up>")
+    root.unbind("<KeyPress>")
     gameoverlabel = Label(root, text="GAME OVER")
     gameoverlabel.grid(row=1, column=2)
     backB = Button(root, text="Back to Home", command=lambda: changescreen(goArray, "Home"))
@@ -582,7 +585,7 @@ def goback(c, e):
         if c.getbosswin():
             changescreen(goArray, "Win")
         else:
-            changescreen([[], [], []], "Home")
+            changescreen(goArray, "Home")
     elif e.char == "v":
         c.cuttree()
     elif e.char == "x" and not c.inventoryup:
@@ -670,21 +673,27 @@ def explore():
     root.bind("<KeyRelease-Down>", lambda e: test.stop(e))
     root.bind("<KeyPress>", lambda e: goback(test, e))
 
+"""
 def homeup(c, e):
-    global stopkeys
+    global stopkeys, stagelevels, player
     if c.currenty1 < 0 and not stopkeys:
         print("homeup's if was called")
         stopkeys = True
         c.back()
+        player.reset_health()
+        stagelevels = 0
         changescreen([[], [], []], "Explore")
     else:
         c.up(e)
+        """
 
 def movement(c, e, press):
-    global stopkeys
+    global stopkeys, stagelevels
     if c.currenty1 <= 0 and not stopkeys:
         stopkeys = True
         c.back()
+        player.reset_health()
+        stagelevels = 0
         changescreen([[], [], []], "Explore")
     if press:
         if e.keysym == "Up":

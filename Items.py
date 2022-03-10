@@ -252,8 +252,8 @@ class Items:
         self.hit = False
         self.canvas.bosswin = False
         self.inventoryup = False
-        self.health = 100
-        self.maxhealth = 100
+        #self.health = 100
+        #self.maxhealth = 100
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
         self.resources = {}
         self.obstacles = {}
@@ -279,7 +279,8 @@ class Items:
             self.bossfight()
 
         self.emptyhealthbar = self.canvas.create_rectangle(420, 365, 580, 385, fill="white")
-        self.fullhealthbar = self.canvas.create_rectangle(420, 365, (self.health / self.maxhealth) * 160 + 420, 385,
+        self.fullhealthbar = self.canvas.create_rectangle(420, 365, (self.player.current_data[0] /
+                                                                     self.player.player_data[3]) * 160 + 420, 385,
                                                           fill="red")
         self.movement()
 
@@ -333,15 +334,17 @@ class Items:
             self.acounter = self.acounter + 1
 
     def changehealth(self, change):
-        self.health = self.health + change
-
-        if self.health <= 0:
-            self.health = 0
+        self.player.change_current_health(change)
+        #self.health = self.health + change
+        self.canvas.coords(self.fullhealthbar, 420, 365,
+                           (self.player.current_data[0] / self.player.player_data[3]) * 160 + 420, 385)
+        if self.player.current_data[0] <= 0:
+            #self.player.reset_health()
+            #self.player.change_current_health(self.player.player_data[3])
+            #self.health = 0
             self.back()
-        elif self.health > self.maxhealth:
-            self.health = self.maxhealth
 
-        self.canvas.coords(self.fullhealthbar, 420, 365, (self.health/self.maxhealth)*160 + 420, 385)
+            #self.canvas.coords(self.fullhealthbar, 420, 365, (self.player.current_data[0]/self.player.player_data[3])*160 + 420, 385)
 
     def swingblade(self):
         self.bladebool = True
