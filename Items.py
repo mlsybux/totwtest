@@ -249,7 +249,7 @@ class Items:
         self.level = l
         if self.level <= 9:
             self.environment = "Forest"
-        elif self.level*10 == 0:
+        elif self.level % 10 == 0:
             self.environment = "Boss Fight"
         else:
             self.environment = "Cave"
