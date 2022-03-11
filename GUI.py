@@ -579,6 +579,7 @@ def goback(c, e):
         """
         c.back()
         stagelevels = 0
+        player.reset_health()
         root.unbind("<KeyPress-Down>")
         root.unbind("<KeyPress-Up>")
         root.unbind("<KeyPress>")
@@ -687,13 +688,23 @@ def homeup(c, e):
         c.up(e)
         """
 
+def e_movement(c, e):
+    if c.currenty1 <= 0:
+        c.back()
+        explore()
+    elif c.currenty2 > 410:
+        goback(c, "q")
+
+
 def movement(c, e, press):
     global stopkeys, stagelevels
     if c.currenty1 <= 0 and not stopkeys:
         stopkeys = True
         c.back()
+        """
         player.reset_health()
-        stagelevels = 0
+        stagelevels = 
+        """
         changescreen([[], [], []], "Explore")
     if press:
         if e.keysym == "Up":

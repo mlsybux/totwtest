@@ -239,6 +239,7 @@ class Databanks:
         elif type == "Player":
             #name, title, kingdom, health, attack, furthest level, crowns
             self.player_data = ["Ako", "Overlord", "Kaharian", 100, 10, 0, 1]
+            #current health
             self.current_data = [100]
             #wood, stone, coal, trees, swords, axe
             self.inventory = [0, 0, 0, 0, 0, 0]

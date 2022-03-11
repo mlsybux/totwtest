@@ -57,8 +57,8 @@ class Bestiary:
         self.type = rtype
         self.id = rid
         self.obstacles = obs
-        #pcoords is the player coordinates in a list, given [x, y]
-        self.pcoords = [290, 350]
+        #pcoords is the player coordinates in a list, given [x, y, direction]
+        self.pcoords = [290, 350, 0]
         #Type, Max Health, Attack
         self.bestiarylist = [["Slime", 50, 1], ["Slime King", 150, 3]]
         for x in self.bestiarylist:
@@ -68,6 +68,9 @@ class Bestiary:
         self.healthbarexists = False
         self.sprite = self.randomsprite()
         self.alive = True
+        self.bouncing = False
+        self.b_count = 0
+        self.direction = 0
         self.x = 0
         self.y = 0
         self.differenceX = 0
@@ -118,6 +121,10 @@ class Bestiary:
             self.defeat()
         if self.healthbarexists:
             self.changehealth(-n)
+        if self.alive:
+            self.direction = self.pcoords[2]
+            self.bouncing = True
+
 
     def specialdamage(self, n):
         if n > (self.health/2):
@@ -137,7 +144,6 @@ class Bestiary:
     def move(self):
         if not self.alive:
             return
-
         # checks where the player is in relation to it, moves in the direction that's currently the furthest
         if self.currentx1-2 > self.pcoords[0]:
             self.differenceX = self.currentx2 - self.pcoords[0]
@@ -146,7 +152,7 @@ class Bestiary:
             self.differenceX = self.pcoords[0] - self.currentx1+2
             self.x = 2
         else:
-            self.differenceX=0
+            self.differenceX = 0
             self.x = 0
         if self.currenty1-2 > self.pcoords[1]:
             self.differenceY = self.currenty1-2 - self.pcoords[1]
@@ -161,6 +167,25 @@ class Bestiary:
             self.y = 0
         else:
             self.x = 0
+
+        if self.bouncing:
+            if self.b_count <= 3:
+                self.b_count += 1
+                if self.direction == 0:
+                    self.x = 0
+                    self.y = -10
+                elif self.direction == 1:
+                    self.x = 10
+                    self.y = 0
+                elif self.direction == 2:
+                    self.x = 0
+                    self.y = 10
+                elif self.direction == 3:
+                    self.x = -10
+                    self.y = 0
+            else:
+                self.bouncing = False
+                self.b_count = 0
 
         # checks if there's an obstacle in the direction it's trying to move
         if self.x < 0 and self.hasobstacle(self.currentx1 - 5, self.currenty1, self.currentx2 - 5, self.currenty2):
@@ -182,9 +207,10 @@ class Bestiary:
 
         self.canvas.after(70, self.move)
 
-    def getplayercoords(self, px, py):
+    def getplayercoords(self, px, py, pd):
         self.pcoords[0] = px
         self.pcoords[1] = py
+        self.pcoords[2] = pd
 
 
     def getattack(self):
@@ -221,12 +247,12 @@ class Items:
         self.x = 0
         self.y = 0
         self.level = l
-        if self.level <= 7:
+        if self.level <= 9:
             self.environment = "Forest"
-        elif 12 >= self.level > 7:
-            self.environment = "Cave"
-        elif self.level > 12:
+        elif self.level*10 == 0:
             self.environment = "Boss Fight"
+        else:
+            self.environment = "Cave"
         #just saying that all the keys are released by default
         self.leftpressed = False
         self.rightpressed = False
@@ -251,6 +277,7 @@ class Items:
         self.bladebool = False
         self.hit = False
         self.canvas.bosswin = False
+        self.boss_checked = False
         self.inventoryup = False
         #self.health = 100
         #self.maxhealth = 100
@@ -265,6 +292,7 @@ class Items:
         if self.environment == "Forest":
             if self.level <= 3:
                 self.spawnitems([5, 3, 2, 2])
+                self.loadenemies(1)
             elif 5 > self.level > 3:
                 self.spawnitems([3, 5, 4, 1])
                 self.loadenemies(1)
@@ -335,16 +363,11 @@ class Items:
 
     def changehealth(self, change):
         self.player.change_current_health(change)
-        #self.health = self.health + change
         self.canvas.coords(self.fullhealthbar, 420, 365,
                            (self.player.current_data[0] / self.player.player_data[3]) * 160 + 420, 385)
         if self.player.current_data[0] <= 0:
-            #self.player.reset_health()
-            #self.player.change_current_health(self.player.player_data[3])
-            #self.health = 0
             self.back()
 
-            #self.canvas.coords(self.fullhealthbar, 420, 365, (self.player.current_data[0]/self.player.player_data[3])*160 + 420, 385)
 
     def swingblade(self):
         self.bladebool = True
@@ -377,11 +400,11 @@ class Items:
                     elif a.gettype() == "Slime" and a.getid() == x:
                         if not self.hit:
                             self.hit = True
-                            a.damage(10)
+                            a.damage(self.player.player_data[4])
                     elif a.gettype() == "Slime King" and a.getid() == x:
                         if not self.hit:
                             self.hit = True
-                            a.damage(10)
+                            a.damage(self.player.player_data[4])
 
         if (self.facing == 2 and self.bx1 <= self.currentx1) or (self.facing == 0 and self.bx2 >= self.currentx2)\
                 or (self.facing == 3 and self.by1 <= self.currenty1) or (self.facing == 1 and self.by2 >= self.currenty2):
@@ -392,6 +415,13 @@ class Items:
             self.hit = False
             return
         self.canvas.move(self.blade, self.bx, self.by)
+        if self.canvas.bosswin and not self.boss_checked:
+            self.boss_checked = True
+            self.canvas.delete(self.upperborder)
+            self.upperborderL = self.canvas.create_rectangle(0, 0, 280, 20, fill=self.color)
+            self.upperborderR = self.canvas.create_rectangle(315, 0, 600, 20, fill=self.color)
+            self.obstacles["UpperBorderL"] = self.upperborderL
+            self.obstacles["UpperBorderR"] = self.upperborderR
         self.canvas.after(70, self.swingblade)
 
     def cuttree(self):
@@ -410,15 +440,6 @@ class Items:
     def overlaps(self, x1, y1, x2, y2):
         self.overlap_list = []
         self.c_object = self.canvas.find_overlapping(x1, y1, x2, y2)
-        """
-        for k, v in self.resources.items(): #iterates over resources dict
-            if v in self.c_object:
-                self.overlap_list.append(k)
-        #delete under this if it doesn't work
-        for k, v in self.obstacles.items():
-            if v in self.c_object:
-                self.overlap_list.append(k)
-                """
         for x in self.dictionaries:
             for k, v in x.items():
                 if v in self.c_object:
@@ -461,6 +482,7 @@ class Items:
                 self.ind = self.ind + 1
                 self.i = self.i + 1
             self.penisboi = self.penisboi + 1
+        #this part makes the tree on the border
         self.stack.append(Resource(self.canvas, "Tree", "BorderTree"))
         self.stack[self.i].setlocation(285, 2, 310, 27)
         self.obstacles[self.stack[self.i].getid()] = self.stack[self.i].getsprite()
@@ -495,8 +517,8 @@ class Items:
 
             #let enemies know where player is
             for x in self.stack:
-                if x.gettype() == "Slime":
-                    x.getplayercoords(self.currentx1, self.currenty1)
+                if x.gettype() == "Slime" or x.gettype() == "Slime King":
+                    x.getplayercoords(self.currentx1, self.currenty1, self.facing)
 
             #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
             self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
@@ -522,33 +544,37 @@ class Items:
 
 
     def left(self, event):
-        self.leftpressed = True
-        self.canvas.itemconfig(self.playersprite, image=self.pleft)
-        self.facing = 3
-        self.x = -5
-        self.y = 0
+        if not self.bladebool:
+            self.leftpressed = True
+            self.canvas.itemconfig(self.playersprite, image=self.pleft)
+            self.facing = 3
+            self.x = -5
+            self.y = 0
 
     def right(self, event):
-        self.rightpressed = True
-        self.canvas.itemconfig(self.playersprite, image=self.pright)
-        self.facing = 1
-        self.x = 5
-        self.y = 0
+        if not self.bladebool:
+            self.rightpressed = True
+            self.canvas.itemconfig(self.playersprite, image=self.pright)
+            self.facing = 1
+            self.x = 5
+            self.y = 0
 
 
     def up(self, event):
-        self.uppressed = True
-        self.canvas.itemconfig(self.playersprite, image=self.pback)
-        self.facing = 0
-        self.x = 0
-        self.y = -5
+        if not self.bladebool:
+            self.uppressed = True
+            self.canvas.itemconfig(self.playersprite, image=self.pback)
+            self.facing = 0
+            self.x = 0
+            self.y = -5
 
     def down(self, event):
-        self.downpressed = True
-        self.canvas.itemconfig(self.playersprite, image=self.psprite)
-        self.facing = 2
-        self.x = 0
-        self.y = 5
+        if not self.bladebool:
+            self.downpressed = True
+            self.canvas.itemconfig(self.playersprite, image=self.psprite)
+            self.facing = 2
+            self.x = 0
+            self.y = 5
 
 
     def stop(self, event):
@@ -581,15 +607,6 @@ class Items:
                 self.facing = 1
                 self.canvas.itemconfig(self.playersprite, image=self.pright)
 
-    """
-#stats stuff
-    def loadstats(self, n):
-        self.health = n
-        self.changehealth(0)
-
-    def getstats(self):
-        return self.health
-    """
 #inventory stuff
 
     def open_popup(self, id):
@@ -604,40 +621,3 @@ class Items:
         for x in array:
             x.grid_forget()
         self.movement()
-
-
-
-    """
-    def showinventory(self):
-        self.inventoryup = True
-        self.inv.grid(row=1, column=1, rowspan=3, columnspan=3)
-        self.backB = Button(self.master, text="X", command=lambda:self.hideinventory())
-        self.invLabel = Label(self.master, text="Inventory: \nWood: " + str(self.inventory[0]) + "\nStone: "
-                                                + str(self.inventory[1]) + "\nCoal: " + str(self.inventory[2]) +
-                                                "\nAxes: " + str(self.inventory[5]))
-        self.invLabel.grid(row=2, column=2)
-        self.backB.grid(row=3, column=3)
-
-    def hideinventory(self):
-        self.inventoryup = False
-        self.inv.grid_forget()
-        self.invLabel.grid_forget()
-        self.backB.grid_forget()
-
-    def loadinventory(self, arr):
-        self.ind = 0
-        for x in arr:
-            self.inventory[self.ind] = x
-            self.ind += 1
-
-    def additem(self, n, a):
-        self.inventory[n] = self.inventory[n] + a
-
-    def subtractitem(self, n, a):
-        self.inventory[n] = self.inventory[n] - a
-        if self.inventory[n] < 0:
-            self.inventory[n] = 0
-
-    def getinventory(self):
-        return self.inventory
-    """
