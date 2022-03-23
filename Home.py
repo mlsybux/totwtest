@@ -347,8 +347,11 @@ class Home:
 
 
     def interaction(self):
+        print("interaction 1")
         if self.picup and not self.button_up:
+            print("interaction 2")
             if not self.label_on:
+                print("interaction 3")
                 self.label_on = True
                 self.label.configure(text=self.script[self.index])
                 self.label.grid(row=4, column=2, rowspan=4)
