@@ -1,6 +1,7 @@
 from tkinter import *
 from Items import *
 from Home import *
+from Morgan import *
 
 root = Tk()
 root.title("Take Over The World!!")
@@ -98,12 +99,8 @@ def changescreen(arr, new):
         credits()
     elif new == "Home":
         home()
-    elif new == "Menu":
-        menu()
-    elif new == "Craft":
-        craft()
-    elif new == "Options":
-        options()
+    elif new == "Castle":
+        castle()
     elif new == "Explore":
         gameover()
         explore()
@@ -697,15 +694,21 @@ def e_movement(c, e):
 
 
 def movement(c, e, press):
-    global stopkeys, stagelevels
+    global stopkeys
     if c.currenty1 <= 0 and not stopkeys:
         stopkeys = True
         c.back()
-        """
-        player.reset_health()
-        stagelevels = 
-        """
         changescreen([[], [], []], "Explore")
+    elif c.currentx1 <= 0 and not stopkeys:
+        #go all the way left to enter the castle
+        stopkeys = True
+        c.back()
+        changescreen([[], [], []], "Castle")
+    elif c.currentx1 >= 600 and not stopkeys:
+        #go all the way right to leave the castle
+        stopkeys = True
+        c.back()
+        changescreen([[], [], []], "Home")
     if press:
         if e.keysym == "Up":
             c.up(e)
@@ -727,6 +730,7 @@ def home_keypress(c, e):
         c.back()
         changescreen([[], [], []], "Title")
 
+
 def home():
     global player, stopkeys
     stopkeys = False
@@ -743,9 +747,34 @@ def home():
     root.bind("<KeyRelease-Up>", lambda e: movement(home, e, False))
     root.bind("<KeyRelease-Down>", lambda e: movement(home, e, False))
     root.bind("<KeyPress>", lambda e: home_keypress(home, e))
+
+def castle_keypress(c, e):
+    if e.char == "z":
+        c.interaction()
+    elif e.char == "x" and not c.parchmentup:
+        c.open_popup(1)
+    elif e.char == "q" and not c.parchmentup:
+        c.back()
+        changescreen([[], [], []], "Title")
+
+def castle():
+    global player, stopkeys
+    stopkeys = False
+    castle = Morgan(root, player)
+    root.bind("<KeyPress-Left>", lambda e: movement(castle, e, True))
+    root.bind("<KeyPress-Right>", lambda e: movement(castle, e, True))
+    root.bind("<KeyPress-Up>", lambda e: movement(castle, e, True))
+    root.bind("<KeyPress-Down>", lambda e: movement(castle, e, True))
+    root.bind("<KeyRelease-Left>", lambda e: movement(castle, e, False))
+    root.bind("<KeyRelease-Right>", lambda e: movement(castle, e, False))
+    root.bind("<KeyRelease-Up>", lambda e: movement(castle, e, False))
+    root.bind("<KeyRelease-Down>", lambda e: movement(castle, e, False))
+    root.bind("<KeyPress>", lambda e: castle_keypress(castle, e))
+
 #main running stuff
 #title()
-gameover()
-explore()
+#gameover()
+#explore()
 #home()
+castle()
 root.mainloop()

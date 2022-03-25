@@ -15,6 +15,10 @@ class Popups:
         elif ID == 1:
             self.menu_screen()
             self.change_menu(0)
+        elif ID == 2:
+            self.parchment_screen()
+        elif ID == 3:
+            self.yes_no_screen()
         self.canvas.grid(row=1, column=1, rowspan=3, columnspan=3)
 
     def menu_screen(self):
@@ -103,7 +107,6 @@ class Popups:
         self.king_b.grid(row=0)
         self.queen_b.grid(row=1)
         self.over_b.grid(row=2)
-
 
 
     def change_menu(self, id):
@@ -221,16 +224,26 @@ class Popups:
                 self.can_craft = True
         self.ingredients.config(text=self.ing_text)
 
+#all the parchment stuff
+    def parchment_screen(self):
+        self.canvas.itemconfigure(self.header, text="Kingdom Report:")
+
+    def yes_no_screen(self):
+        self.yes_button = Button(self.master, text="YES")
+        self.no_button = Button(self.master, text="NO")
+        #self.canvas.itemconfigure(self.header, text="")
 
 
 class Databanks:
     def __init__(self, type, ID):
         #[int x, int y, array script, sprite]
-        #kuya, craft bench
+        #kuya, craft bench, record table, bed
         if type == "NPC":
             self.array = [[100, 100, ["Hey there.", "This is just a test script, but might as well do something fun.",
               "Uhhhh what kind of drink do you like?", "{", "{INSERT}", "I, personally, like hot cocoa."]],
-                          [400, 200, ["Time to craft!", "{CRAFT}"]]]
+                          [400, 200, ["Time to craft!", "{CRAFT}"]],
+                          [300, 200, ["There are kingdom records lying on the table", "{PARCHMENT}"]],
+                          [150, 150, ["Rest until tomorrow?", "{SLEEP}"]]]
             self.object = self.array[ID]
             self.x = self.object[0]
             self.y = self.object[1]
@@ -324,7 +337,7 @@ class Home:
         self.pright = PhotoImage(file='beta_right.png')
         self.bsprite = PhotoImage(file='basic_sprite.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.pback)
-        self.npc_list = (NPC(self.master, self.canvas, 0), NPC(self.master, self.canvas, 1))
+        self.npc_list = [NPC(self.master, self.canvas, 0), NPC(self.master, self.canvas, 1)]
         self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
         self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
         self.currentx2 = self.currentx1 + 20
@@ -347,11 +360,8 @@ class Home:
 
 
     def interaction(self):
-        print("interaction 1")
         if self.picup and not self.button_up:
-            print("interaction 2")
             if not self.label_on:
-                print("interaction 3")
                 self.label_on = True
                 self.label.configure(text=self.script[self.index])
                 self.label.grid(row=4, column=2, rowspan=4)
@@ -553,13 +563,15 @@ class Home:
 
     def loadborders(self):
         self.color = "green"
-        self.leftborder = self.canvas.create_rectangle(0, 0, 17, 400, fill=self.color)
+        self.leftborder1 = self.canvas.create_rectangle(0, 0, 17, 200, fill=self.color)
+        self.leftborder2 = self.canvas.create_rectangle(0, 350, 17, 400, fill=self.color)
         self.rightborder = self.canvas.create_rectangle(583, 0, 600, 400, fill=self.color)
         self.lowerborder = self.canvas.create_rectangle(0, 383, 600, 400, fill=self.color)
         self.upperborderL = self.canvas.create_rectangle(0, 0, 400, 20, fill=self.color)
         self.upperborderR = self.canvas.create_rectangle(440, 0, 600, 20, fill=self.color)
         self.obstacles["UpperBorderL"] = self.upperborderL
         self.obstacles["UpperBorderR"] = self.upperborderR
-        self.obstacles["LeftBorder"] = self.leftborder
+        self.obstacles["LeftBorder1"] = self.leftborder1
+        self.obstacles["LeftBorder2"] = self.leftborder2
         self.obstacles["RightBorder"] = self.rightborder
         self.obstacles["LowerBorder"] = self.lowerborder
