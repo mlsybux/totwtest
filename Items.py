@@ -265,10 +265,10 @@ class Items:
         #self.inv = Canvas(master, width=300, height=200, bg="gray")
         #the player's sprite and its coordinates :)
         #self.playersprite = self.canvas.create_rectangle(290, 350, 310, 370, fill="purple")
-        self.psprite = PhotoImage(file='beta_sprite.png')
-        self.pback = PhotoImage(file='beta_back.png')
-        self.pleft = PhotoImage(file='beta_left.png')
-        self.pright = PhotoImage(file='beta_right.png')
+        self.psprite = PhotoImage(file='assets/ako_front.png')
+        self.pback = PhotoImage(file='assets/ako_back.png')
+        self.pleft = PhotoImage(file='assets/ako_left.png')
+        self.pright = PhotoImage(file='assets/ako_right.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.pback)
         self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
         self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10

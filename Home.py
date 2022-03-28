@@ -248,7 +248,7 @@ class Databanks:
             self.x = self.object[0]
             self.y = self.object[1]
             self.script = self.object[2]
-            self.sprite = PhotoImage(file='basic_sprite.png')
+            self.sprite = PhotoImage(file='assets/ekorre_front.png')
         elif type == "Player":
             #name, title, kingdom, health, attack, furthest level, crowns
             self.player_data = ["Ako", "Overlord", "Kaharian", 100, 10, 0, 1]
@@ -299,7 +299,7 @@ class NPC:
         self.master = master
         self.canvas = canvas
         self.data = Databanks("NPC", ID)
-        self.excimage = PhotoImage(file='exclamation.png')
+        self.excimage = PhotoImage(file='assets/exclamation.png')
         self.npcsprite = self.canvas.create_image(self.data.x, self.data.y, image=self.data.sprite)
         self.excsprite = self.canvas.create_image(self.data.x, self.data.y-20,
                                                   image=self.excimage, state=HIDDEN)
@@ -328,14 +328,14 @@ class Home:
         # 0 = front, 1 = right, 2 = down, 3 = left
         self.facing = 0
         # this is the canvas NOT THE TK
-        self.canvas = Canvas(master, width=600, height=400, bg="light green")
+        self.canvas = Canvas(master, width=600, height=400, bg="DarkOliveGreen3")
         # the player's sprite and its coordinates :)
         # self.playersprite = self.canvas.create_rectangle(290, 350, 310, 370, fill="purple")
-        self.psprite = PhotoImage(file='beta_sprite.png')
-        self.pback = PhotoImage(file='beta_back.png')
-        self.pleft = PhotoImage(file='beta_left.png')
-        self.pright = PhotoImage(file='beta_right.png')
-        self.bsprite = PhotoImage(file='basic_sprite.png')
+        self.psprite = PhotoImage(file='assets/ako_front.png')
+        self.pback = PhotoImage(file='assets/ako_back.png')
+        self.pleft = PhotoImage(file='assets/ako_left.png')
+        self.pright = PhotoImage(file='assets/ako_right.png')
+        self.bsprite = PhotoImage(file='assets/basic_sprite.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.pback)
         self.npc_list = [NPC(self.master, self.canvas, 0), NPC(self.master, self.canvas, 1)]
         self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10

@@ -5,7 +5,7 @@ from Morgan import *
 
 root = Tk()
 root.title("Take Over The World!!")
-root.iconphoto(False, PhotoImage(file='beta_sprite.png'))
+root.iconphoto(False, PhotoImage(file='assets/beta_sprite.png'))
 #root.geometry("1200x800")
 root.geometry("600x400")
 root.grid_propagate(False)
@@ -775,6 +775,6 @@ def castle():
 #title()
 #gameover()
 #explore()
-#home()
-castle()
+home()
+#castle()
 root.mainloop()

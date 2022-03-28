@@ -15,11 +15,10 @@ class Morgan:
         # this is the canvas NOT THE TK
         self.canvas = Canvas(master, width=600, height=400, bg="goldenrod")
         # the player's sprite and its coordinates :)
-        self.psprite = PhotoImage(file='beta_sprite.png')
-        self.pback = PhotoImage(file='beta_back.png')
-        self.pleft = PhotoImage(file='beta_left.png')
-        self.pright = PhotoImage(file='beta_right.png')
-        self.bsprite = PhotoImage(file='basic_sprite.png')
+        self.psprite = PhotoImage(file='assets/ako_front.png')
+        self.pback = PhotoImage(file='assets/ako_back.png')
+        self.pleft = PhotoImage(file='assets/ako_left.png')
+        self.pright = PhotoImage(file='assets/ako_right.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.pleft)
         self.x = 0
         self.y = 0
