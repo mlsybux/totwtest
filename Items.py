@@ -234,6 +234,204 @@ class Bestiary:
         self.canvas.delete(self.sprite)
         if self.type == "Slime King":
             self.canvas.bosswin = True
+        else:
+            self.canvas.enemies_alive -= 1
+
+
+class Boss:
+    def __init__(self, canvas, player, id, obs):
+        self.canvas = canvas
+        self.player = player
+        self.obstacles = obs
+        # pcoords is the player coordinates in a list, given [x, y, direction]
+        self.pcoords = [290, 350, 0]
+        #self.bosses = ["Azretta", "Ekorre", "Permata", "Batu", "Dobhran", "Seileach", "Terkun", "Nahla",
+                       #"Dreki", "Eldi"]
+        #name, health, attack, size/2
+        self.bosses = [["Azretta", 150, 3, 40], ["Ekorre", 175, 4, 25], ["Permata", 150, 3, 60], ["Batu", 150, 3, 40],
+                       ["Dobhran", 150, 3, 25], ["Seileach", 150, 3, 40], ["Terkun", 150, 3, 25], ["Nahla", 150, 3, 40],
+                       ["Dreki", 150, 3, 60], ["Eldi", 150, 3, 60]]
+
+        self.type = self.bosses[id][0]
+        self.health, self.maxhealth = self.bosses[id][1], self.bosses[id][1]
+        self.attack = self.bosses[id][2]
+        self.size = self.bosses[id][3]
+        self.sprite_set = [['assets/radjur_front.png', 'assets/radjur_left.png', 'assets/radjur_back.png',
+                            'assets/radjur_right.png'], #azretta
+                           ['assets/ekorre_front.png', 'assets/ekorre_left.png', 'assets/ekorre_back',
+                            'assets/ekorre_right.png'], #ekorre
+                           ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
+                            'assets/kuya_right.png'], #permata
+                           ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
+                            'assets/kuya_right.png'], #batu
+                           ['assets/dobhran_front.png', 'assets/dobhran_left.png', 'assets/dobhran_back.png',
+                            'assets/dobhran_right.png'], #dobhran
+                           ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
+                            'assets/kuya_right.png'], #seileach
+                           ['assets/alba_front.png', 'assets/alba_left.png', 'assets/alba_back.png',
+                            'assets/alba_right.png'], #terkun
+                           ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
+                            'assets/kuya_right.png'], #nahla
+                           ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
+                            'assets/kuya_right.png'], #dreki
+                           ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
+                            'assets/kuya_right.png']] #eldi
+        self.front = PhotoImage(file= self.sprite_set[id][0])
+        self.left = PhotoImage(file=self.sprite_set[id][1])
+        self.back = PhotoImage(file=self.sprite_set[id][2])
+        self.right = PhotoImage(file=self.sprite_set[id][3])
+        self.directions = [self.back, self.right, self.front, self.left]
+        #0=back, 1=right, 2=front, 3=left
+        self.facing = 2
+        self.current_facing = 2
+        self.x = 0
+        self.y = 0
+        self.sprite = self.canvas.create_image(self.x, self.y, image=self.front)
+        self.canvas.bosswin = False
+        self.alive = True
+        self.bouncing = False
+        self.b_count = 0
+        self.direction = 0
+        self.differenceX = 0
+        self.differenceY = 0
+        self.currentx1 = 100 - self.size
+        self.currenty1 = 100 - self.size
+        self.currentx2 = 100 + self.size
+        self.currenty2 = 100 + self.size
+        self.move()
+
+
+    def healthbar(self):
+        self.healthbarexists = True
+        self.emptyhealthbar = self.canvas.create_rectangle(20, 365, 180, 385, fill="white")
+        self.fullhealthbar = self.canvas.create_rectangle(20, 365, (self.health / self.maxhealth) * 160 + 20, 385,
+                                                          fill="red")
+
+    def changehealth(self, change):
+        self.health = self.health + change
+
+        if self.health > self.maxhealth:
+            self.health = self.maxhealth
+        if self.health <= 0:
+            self.canvas.delete(self.fullhealthbar)
+        else:
+            self.canvas.coords(self.fullhealthbar, 20, 365, (self.health / self.maxhealth) * 160 + 20, 385)
+
+    def damage(self, n):
+        self.health = self.health - n
+        #print(self.health)
+        if self.health <= 0:
+            self.health = 0
+            self.defeat()
+        if self.healthbarexists:
+            self.changehealth(-n)
+        if self.alive:
+            self.direction = self.pcoords[2]
+            self.bouncing = True
+
+    def hasobstacle(self, x1, y1, x2, y2):
+        if y2 >= 385:
+            return True
+        self.c_object = self.canvas.find_overlapping(x1, y1, x2, y2)
+        for k, v in self.obstacles.items():  # iterates over obstacles dict
+            if v in self.c_object:
+                return True
+        return False
+
+    def move(self):
+        if not self.alive:
+            return
+        # checks where the player is in relation to it, moves in the direction that's currently the furthest
+        if self.currentx1-2 > self.pcoords[0]:
+            self.differenceX = self.currentx2 - self.pcoords[0]
+            self.x = -5
+        elif self.currentx1+2 < self.pcoords[0]:
+            self.differenceX = self.pcoords[0] - self.currentx1+2
+            self.x = 5
+        else:
+            self.differenceX = 0
+            self.x = 0
+        if self.currenty1-2 > self.pcoords[1]:
+            self.differenceY = self.currenty1-2 - self.pcoords[1]
+            self.y = -5
+        elif self.currenty1+2 < self.pcoords[1]:
+            self.differenceY = self.pcoords[1] - self.currenty1+2
+            self.y = 5
+        else:
+            self.differenceY = 0
+            self.y = 0
+        if self.differenceX > self.differenceY:
+            self.y = 0
+        else:
+            self.x = 0
+
+        if self.bouncing:
+            if self.b_count <= 3:
+                self.b_count += 1
+                if self.direction == 0:
+                    self.x = 0
+                    self.y = -10
+                elif self.direction == 1:
+                    self.x = 10
+                    self.y = 0
+                elif self.direction == 2:
+                    self.x = 0
+                    self.y = 10
+                elif self.direction == 3:
+                    self.x = -10
+                    self.y = 0
+            else:
+                self.bouncing = False
+                self.b_count = 0
+
+        # checks if there's an obstacle in the direction it's trying to move
+        if self.x < 0 and self.hasobstacle(self.currentx1 - 5, self.currenty1, self.currentx2 - 5, self.currenty2):
+            self.x = 0
+        if self.x > 0 and self.hasobstacle(self.currentx1 + 5, self.currenty1, self.currentx2 + 5, self.currenty2):
+            self.x = 0
+        if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1 - 5, self.currentx2, self.currenty2 - 5):
+            self.y = 0
+        if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1 + 5, self.currentx2, self.currenty2 + 5):
+            self.y = 0
+
+        # moves the sprite
+        self.canvas.move(self.sprite, self.x, self.y)
+        if not self.facing == self.current_facing:
+            self.change_direction(self.facing)
+        # sets the current coords to whatever the new coords are
+        self.currentx1 = self.canvas.coords(self.sprite)[0]
+        self.currenty1 = self.canvas.coords(self.sprite)[1]
+        self.currentx2 = self.canvas.coords(self.sprite)[2]
+        self.currenty2 = self.canvas.coords(self.sprite)[3]
+
+        self.canvas.after(70, self.move)
+
+    def getsprite(self):
+        return self.sprite
+
+    def getattack(self):
+        return self.attack
+
+    def getid(self):
+        return "Boss"
+
+    def gettype(self):
+        return self.type
+
+    def getplayercoords(self, px, py, pd):
+        self.pcoords[0] = px
+        self.pcoords[1] = py
+        self.pcoords[2] = pd
+
+    def change_direction(self, dir):
+        self.current_facing = dir
+        self.canvas.itemconfig(self.sprite, image=self.directions[dir])
+
+    def defeat(self):
+        self.alive = False
+        self.canvas.delete(self.sprite)
+        self.canvas.bosswin = True
+        self.canvas.enemies_alive -=1
 
 
 class Items:
@@ -247,12 +445,28 @@ class Items:
         self.x = 0
         self.y = 0
         self.level = l
-        if self.level <= 9:
+        if self.level <= 20:
             self.environment = "Forest"
-        elif self.level % 10 == 0:
-            self.environment = "Boss Fight"
-        else:
+            self.color1 = "DarkOliveGreen3"
+            self.color2 = "forest green"
+        elif self.level <= 40:
             self.environment = "Cave"
+            self.color1 = "gray16"
+            self.color2 = "gray50"
+        elif self.level <= 60:
+            self.environment = "Ocean"
+            self.color1 = "cyan3"
+            self.color2 = "DodgerBlue4"
+        elif self.level <= 80:
+            self.environment = "Tundra"
+            self.color1 = "snow2"
+            self.color2 = "slate gray"
+        elif self.level <= 100:
+            self.environment = "Volcano"
+            self.color1 = "firebrick3"
+            self.color2 = "brown4"
+        if self.level % 10 == 0:
+            self.environment = "Boss Fight"
         #just saying that all the keys are released by default
         self.leftpressed = False
         self.rightpressed = False
@@ -261,26 +475,23 @@ class Items:
         #0 = front, 1 = right, 2 = down, 3 = left
         self.facing = 0
         #this is the canvas NOT THE TK
-        self.canvas = Canvas(master, width=600, height=400)
-        #self.inv = Canvas(master, width=300, height=200, bg="gray")
+        self.canvas = Canvas(master, width=600, height=400, bg=self.color1)
         #the player's sprite and its coordinates :)
-        #self.playersprite = self.canvas.create_rectangle(290, 350, 310, 370, fill="purple")
         self.psprite = PhotoImage(file='assets/ako_front.png')
         self.pback = PhotoImage(file='assets/ako_back.png')
         self.pleft = PhotoImage(file='assets/ako_left.png')
         self.pright = PhotoImage(file='assets/ako_right.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.pback)
-        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-        self.currentx2 = self.currentx1 + 20
-        self.currenty2 = self.currenty1 + 20
+        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+        self.currentx2 = self.currentx1 + 50
+        self.currenty2 = self.currenty1 + 50
         self.bladebool = False
         self.hit = False
         self.canvas.bosswin = False
+        self.canvas.enemies_alive = 0
         self.boss_checked = False
         self.inventoryup = False
-        #self.health = 100
-        #self.maxhealth = 100
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
         self.resources = {}
         self.obstacles = {}
@@ -302,9 +513,11 @@ class Items:
         elif self.environment == "Cave":
             self.spawnitems([0, 6, 5, 0])
             self.loadenemies(1)
-        elif self.environment == "Boss Fight":
-            #self.loadenemies(5)
+        elif self.environment.startswith("Boss Fight"):
+            #self.boss = self.bosses[self.environment[:]]
             self.bossfight()
+
+
 
         self.emptyhealthbar = self.canvas.create_rectangle(420, 365, 580, 385, fill="white")
         self.fullhealthbar = self.canvas.create_rectangle(420, 365, (self.player.current_data[0] /
@@ -316,24 +529,23 @@ class Items:
         return self.canvas.bosswin
 
     def loadborders(self):
-        if self.environment == "Forest":
-            self.color = "green"
-        else:
-            self.color = "gray"
-        self.leftborder = self.canvas.create_rectangle(0, 0, 17, 400, fill=self.color)
-        self.rightborder = self.canvas.create_rectangle(583, 0, 600, 400, fill=self.color)
+        self.leftborder = self.canvas.create_rectangle(0, 0, 17, 400, fill=self.color2)
+        self.rightborder = self.canvas.create_rectangle(583, 0, 600, 400, fill=self.color2)
 
-        self.lowerborderL = self.canvas.create_rectangle(0, 353, 200, 400, fill=self.color)
-        self.lowerborderR = self.canvas.create_rectangle(400, 353, 600, 400, fill=self.color)
-
+        self.lowerborderL = self.canvas.create_rectangle(0, 353, 200, 400, fill=self.color2)
+        self.lowerborderR = self.canvas.create_rectangle(400, 353, 600, 400, fill=self.color2)
+        """
         if self.environment == "Boss Fight":
-            self.upperborder = self.canvas.create_rectangle(0, 0, 600, 20, fill=self.color)
+            self.upperborder = self.canvas.create_rectangle(0, 0, 600, 20, fill=self.color2)
             self.obstacles["UpperBorder"] = self.upperborder
         else:
-            self.upperborderL = self.canvas.create_rectangle(0, 0, 280, 20, fill=self.color)
-            self.upperborderR = self.canvas.create_rectangle(315, 0, 600, 20, fill=self.color)
+            self.upperborderL = self.canvas.create_rectangle(0, 0, 280, 20, fill=self.color2)
+            self.upperborderR = self.canvas.create_rectangle(315, 0, 600, 20, fill=self.color2)
             self.obstacles["UpperBorderL"] = self.upperborderL
             self.obstacles["UpperBorderR"] = self.upperborderR
+        """
+        self.upperborder = self.canvas.create_rectangle(0, 0, 600, 20, fill=self.color2)
+        self.obstacles["UpperBorder"] = self.upperborder
 
         self.obstacles["LeftBorder"] = self.leftborder
         self.obstacles["RightBorder"] = self.rightborder
@@ -341,9 +553,15 @@ class Items:
         self.obstacles["LowerBorderR"] = self.lowerborderR
 
     def bossfight(self):
+        self.boss = Boss(self.canvas, self.player, (self.level/10)-1)
+        self.stack.append(self.boss)
+        self.enemies["Boss"] = self.boss.getsprite()
+
+        """
         self.boss = Bestiary(self.canvas, "Slime King", "Slime King", self.obstacles)
         self.stack.append(self.boss)
         self.enemies["Slime King"] = self.boss.getsprite()
+        """
 
 
 
@@ -360,6 +578,7 @@ class Items:
             self.stack.append(self.enemy)
             self.enemies["Slime" + str(self.acounter)] = self.enemy.getsprite()
             self.acounter = self.acounter + 1
+            self.canvas.enemies_alive += 1
 
     def changehealth(self, change):
         self.player.change_current_health(change)
@@ -415,13 +634,14 @@ class Items:
             self.hit = False
             return
         self.canvas.move(self.blade, self.bx, self.by)
-        if self.canvas.bosswin and not self.boss_checked:
+        if (self.canvas.bosswin or self.canvas.enemies_alive == 0) and not self.boss_checked:
             self.boss_checked = True
             self.canvas.delete(self.upperborder)
-            self.upperborderL = self.canvas.create_rectangle(0, 0, 280, 20, fill=self.color)
-            self.upperborderR = self.canvas.create_rectangle(315, 0, 600, 20, fill=self.color)
+            self.upperborderL = self.canvas.create_rectangle(0, 0, 255, 20, fill=self.color2)
+            self.upperborderR = self.canvas.create_rectangle(340, 0, 600, 20, fill=self.color2)
             self.obstacles["UpperBorderL"] = self.upperborderL
             self.obstacles["UpperBorderR"] = self.upperborderR
+            self.canvas.lift(self.level_text)
         self.canvas.after(70, self.swingblade)
 
     def cuttree(self):
@@ -483,9 +703,11 @@ class Items:
                 self.i = self.i + 1
             self.penisboi = self.penisboi + 1
         #this part makes the tree on the border
+        """
         self.stack.append(Resource(self.canvas, "Tree", "BorderTree"))
         self.stack[self.i].setlocation(285, 2, 310, 27)
         self.obstacles[self.stack[self.i].getid()] = self.stack[self.i].getsprite()
+        """
 
     def hasobstacle(self, x1, y1, x2, y2):
         self.c_object = self.canvas.find_overlapping(x1, y1, x2, y2)
@@ -510,10 +732,10 @@ class Items:
             #moves the sprite
             self.canvas.move(self.playersprite, self.x, self.y)
             #sets the current coords to whatever the new coords are
-            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-            self.currentx2 = self.currentx1 + 20
-            self.currenty2 = self.currenty1 + 20
+            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+            self.currentx2 = self.currentx1 + 50
+            self.currenty2 = self.currenty1 + 50
 
             #let enemies know where player is
             for x in self.stack:

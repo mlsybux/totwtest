@@ -22,10 +22,10 @@ class Morgan:
         self.playersprite = self.canvas.create_image(290, 350, image=self.pleft)
         self.x = 0
         self.y = 0
-        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-        self.currentx2 = self.currentx1 + 20
-        self.currenty2 = self.currenty1 + 20
+        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+        self.currentx2 = self.currentx1 + 25
+        self.currenty2 = self.currenty1 + 25
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
         # wood, stone, coal, tree, swords, axes
         self.inventory = self.player.inventory
@@ -120,13 +120,13 @@ class Morgan:
             #moves the sprite
             self.canvas.move(self.playersprite, self.x, self.y)
             #sets the current coords to whatever the new coords are
-            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-            self.currentx2 = self.currentx1 + 20
-            self.currenty2 = self.currenty1 + 20
+            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+            self.currentx2 = self.currentx1 + 25
+            self.currenty2 = self.currenty1 + 25
             for npc in self.npc_list:
-                if npc.data.x - 30 < self.currentx1 < npc.data.x + 30 and npc.data.y - 30 < self.currenty1 \
-                        < npc.data.y + 30:
+                if npc.data.x - (npc.data.size*2 + 35) < self.currentx1 < npc.data.x + (npc.data.size + 15) \
+                        and npc.data.y - (npc.data.size*2 + 35) < self.currenty1 < npc.data.y + (npc.data.size + 20):
                     self.picup = True
                     npc.set_inrange(True)
                     self.script = npc.data.script

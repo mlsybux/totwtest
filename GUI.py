@@ -5,7 +5,7 @@ from Morgan import *
 
 root = Tk()
 root.title("Take Over The World!!")
-root.iconphoto(False, PhotoImage(file='assets/beta_sprite.png'))
+root.iconphoto(False, PhotoImage(file='assets/ako_portrait.png'))
 #root.geometry("1200x800")
 root.geometry("600x400")
 root.grid_propagate(False)
@@ -731,6 +731,7 @@ def home_keypress(c, e):
         changescreen([[], [], []], "Title")
 
 
+
 def home():
     global player, stopkeys
     stopkeys = False
@@ -776,5 +777,6 @@ def castle():
 #gameover()
 #explore()
 home()
+
 #castle()
 root.mainloop()

@@ -1,4 +1,5 @@
 from tkinter import *
+from Story import *
 
 class Popups:
     def __init__(self, master, ID, player):
@@ -236,19 +237,22 @@ class Popups:
 
 class Databanks:
     def __init__(self, type, ID):
-        #[int x, int y, array script, sprite]
+        #[int x, int y, array script, sprite, size/2]
         #kuya, craft bench, record table, bed
         if type == "NPC":
             self.array = [[100, 100, ["Hey there.", "This is just a test script, but might as well do something fun.",
-              "Uhhhh what kind of drink do you like?", "{", "{INSERT}", "I, personally, like hot cocoa."]],
-                          [400, 200, ["Time to craft!", "{CRAFT}"]],
-                          [300, 200, ["There are kingdom records lying on the table", "{PARCHMENT}"]],
-                          [150, 150, ["Rest until tomorrow?", "{SLEEP}"]]]
+              "Uhhhh what kind of drink do you like?", "{", "{INSERT}", "I, personally, like hot cocoa."],
+                           'assets/kuya_front.png', 40],
+                          [400, 200, ["Time to craft!", "{CRAFT}"], 'assets/ekorre_left.png', 25],
+                          [300, 200, ["There are kingdom records lying on the table", "{PARCHMENT}"],
+                           'assets/ekorre_front.png', 25],
+                          [150, 150, ["Rest until tomorrow?", "{SLEEP}"], 'assets/alba_front.png', 25]]
             self.object = self.array[ID]
             self.x = self.object[0]
             self.y = self.object[1]
             self.script = self.object[2]
-            self.sprite = PhotoImage(file='assets/ekorre_front.png')
+            self.sprite = PhotoImage(file=self.object[3])
+            self.size = self.object[4]
         elif type == "Player":
             #name, title, kingdom, health, attack, furthest level, crowns
             self.player_data = ["Ako", "Overlord", "Kaharian", 100, 10, 0, 1]
@@ -301,7 +305,7 @@ class NPC:
         self.data = Databanks("NPC", ID)
         self.excimage = PhotoImage(file='assets/exclamation.png')
         self.npcsprite = self.canvas.create_image(self.data.x, self.data.y, image=self.data.sprite)
-        self.excsprite = self.canvas.create_image(self.data.x, self.data.y-20,
+        self.excsprite = self.canvas.create_image(self.data.x, self.data.y-(self.data.size+10),
                                                   image=self.excimage, state=HIDDEN)
         self.script = self.data.script
 
@@ -338,10 +342,11 @@ class Home:
         self.bsprite = PhotoImage(file='assets/basic_sprite.png')
         self.playersprite = self.canvas.create_image(290, 350, image=self.pback)
         self.npc_list = [NPC(self.master, self.canvas, 0), NPC(self.master, self.canvas, 1)]
-        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-        self.currentx2 = self.currentx1 + 20
-        self.currenty2 = self.currenty1 + 20
+        #self.npc_list = [NPC(self.master, self.canvas, 1)]
+        self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+        self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+        self.currentx2 = self.currentx1 + 50
+        self.currenty2 = self.currenty1 + 50
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
         # wood, stone, coal, tree, swords, axes
         self.inventory = self.player.inventory
@@ -358,7 +363,7 @@ class Home:
         self.loadborders()
         self.movement()
 
-
+    """
     def interaction(self):
         if self.picup and not self.button_up:
             if not self.label_on:
@@ -374,20 +379,6 @@ class Home:
                     self.choice(["Coffee", "Tea", "Water"])
                 elif self.script[self.index] == "{CRAFT}": #and not self.button_up:
                     self.open_popup(0)
-                    """
-                    self.label_on = False
-                    self.button_up = True
-                    self.label.grid_forget()
-                    if self.index < len(self.script) - 1:
-                        self.index = self.index + 1
-                    else:
-                        self.index = 0
-                    #self.craft = Popups(self.master, 0, self.player)
-                    #self.exitB = Button(self.master, text="X",
-                                        #command=lambda: self.close_popup([self.craft.canvas, self.exitB]))
-                    #self.exitB.grid(row=1, column=3, sticky=NE)
-                    """
-
                 else:
                     self.label.configure(text=self.script[self.index])
             else:
@@ -396,6 +387,23 @@ class Home:
                 self.index = 0
                 self.label.grid_forget()
                 self.movement()
+                
+        """
+
+    def interaction(self):
+        if self.picup and not self.button_up:
+            if not self.label_on:
+                self.label_on = True
+                self.story = Story(self.master, self.canvas, self.player, 0)
+            elif self.story.text_on:
+                self.story.continue_text()
+                if not self.story.text_on:
+                    self.label_on = False
+                    self.movement()
+            else:
+                self.label_on = False
+                self.movement()
+
 
     def open_popup(self, id):
         self.label_on = False
@@ -471,15 +479,15 @@ class Home:
             #moves the sprite
             self.canvas.move(self.playersprite, self.x, self.y)
             #sets the current coords to whatever the new coords are
-            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 10
-            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 10
-            self.currentx2 = self.currentx1 + 20
-            self.currenty2 = self.currenty1 + 20
+            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+            self.currentx2 = self.currentx1 + 50
+            self.currenty2 = self.currenty1 + 50
 
             #checks if you're near an npc to interact with
             for npc in self.npc_list:
-                if npc.data.x - 30 < self.currentx1 < npc.data.x + 30 and npc.data.y - 30 < self.currenty1 \
-                        < npc.data.y + 30:
+                if npc.data.x - (npc.data.size*2 + 35) < self.currentx1 < npc.data.x + (npc.data.size + 15) \
+                        and npc.data.y - (npc.data.size*2 + 35) < self.currenty1 < npc.data.y + (npc.data.size + 20):
                     self.picup = True
                     npc.set_inrange(True)
                     self.script = npc.data.script
@@ -567,7 +575,7 @@ class Home:
         self.leftborder2 = self.canvas.create_rectangle(0, 350, 17, 400, fill=self.color)
         self.rightborder = self.canvas.create_rectangle(583, 0, 600, 400, fill=self.color)
         self.lowerborder = self.canvas.create_rectangle(0, 383, 600, 400, fill=self.color)
-        self.upperborderL = self.canvas.create_rectangle(0, 0, 400, 20, fill=self.color)
+        self.upperborderL = self.canvas.create_rectangle(0, 0, 350, 20, fill=self.color)
         self.upperborderR = self.canvas.create_rectangle(440, 0, 600, 20, fill=self.color)
         self.obstacles["UpperBorderL"] = self.upperborderL
         self.obstacles["UpperBorderR"] = self.upperborderR
