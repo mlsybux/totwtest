@@ -1,6 +1,7 @@
 from tkinter import *
 from random import *
 from Home import *
+from Story import *
 
 
 class Resource:
@@ -258,7 +259,7 @@ class Boss:
         self.size = self.bosses[id][3]
         self.sprite_set = [['assets/radjur_front.png', 'assets/radjur_left.png', 'assets/radjur_back.png',
                             'assets/radjur_right.png'], #azretta
-                           ['assets/ekorre_front.png', 'assets/ekorre_left.png', 'assets/ekorre_back',
+                           ['assets/ekorre_front.png', 'assets/ekorre_left.png', 'assets/ekorre_back.png',
                             'assets/ekorre_right.png'], #ekorre
                            ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
                             'assets/kuya_right.png'], #permata
@@ -276,7 +277,7 @@ class Boss:
                             'assets/kuya_right.png'], #dreki
                            ['assets/kuya_front.png', 'assets/kuya_left.png', 'assets/kuya_back.png',
                             'assets/kuya_right.png']] #eldi
-        self.front = PhotoImage(file= self.sprite_set[id][0])
+        self.front = PhotoImage(file=self.sprite_set[id][0])
         self.left = PhotoImage(file=self.sprite_set[id][1])
         self.back = PhotoImage(file=self.sprite_set[id][2])
         self.right = PhotoImage(file=self.sprite_set[id][3])
@@ -286,7 +287,7 @@ class Boss:
         self.current_facing = 2
         self.x = 0
         self.y = 0
-        self.sprite = self.canvas.create_image(self.x, self.y, image=self.front)
+        self.sprite = self.canvas.create_image(300, 100, image=self.front)
         self.canvas.bosswin = False
         self.alive = True
         self.bouncing = False
@@ -294,12 +295,11 @@ class Boss:
         self.direction = 0
         self.differenceX = 0
         self.differenceY = 0
-        self.currentx1 = 100 - self.size
+        self.currentx1 = 300 - self.size
         self.currenty1 = 100 - self.size
-        self.currentx2 = 100 + self.size
+        self.currentx2 = 300 + self.size
         self.currenty2 = 100 + self.size
         self.move()
-
 
     def healthbar(self):
         self.healthbarexists = True
@@ -342,21 +342,21 @@ class Boss:
         if not self.alive:
             return
         # checks where the player is in relation to it, moves in the direction that's currently the furthest
-        if self.currentx1-2 > self.pcoords[0]:
-            self.differenceX = self.currentx2 - self.pcoords[0]
-            self.x = -5
-        elif self.currentx1+2 < self.pcoords[0]:
-            self.differenceX = self.pcoords[0] - self.currentx1+2
-            self.x = 5
+        if self.canvas.coords(self.sprite)[0]-2 > self.pcoords[0]:
+            self.differenceX = self.canvas.coords(self.sprite)[0] - self.pcoords[0]
+            self.x = -2
+        elif self.canvas.coords(self.sprite)[0]+2 < self.pcoords[0]:
+            self.differenceX = self.pcoords[0] - self.canvas.coords(self.sprite)[0]
+            self.x = 2
         else:
             self.differenceX = 0
             self.x = 0
-        if self.currenty1-2 > self.pcoords[1]:
-            self.differenceY = self.currenty1-2 - self.pcoords[1]
-            self.y = -5
-        elif self.currenty1+2 < self.pcoords[1]:
-            self.differenceY = self.pcoords[1] - self.currenty1+2
-            self.y = 5
+        if self.canvas.coords(self.sprite)[1]-2 > self.pcoords[1]:
+            self.differenceY = self.canvas.coords(self.sprite)[1]-2 - self.pcoords[1]
+            self.y = -2
+        elif self.canvas.coords(self.sprite)[1]+2 < self.pcoords[1]:
+            self.differenceY = self.pcoords[1] - self.canvas.coords(self.sprite)[1]+2
+            self.y = 2
         else:
             self.differenceY = 0
             self.y = 0
@@ -364,6 +364,15 @@ class Boss:
             self.y = 0
         else:
             self.x = 0
+
+        if self.x < 0:
+            self.change_direction(3)
+        elif self.x > 0:
+            self.change_direction(1)
+        elif self.y < 0:
+            self.change_direction(0)
+        elif self.y > 0:
+            self.change_direction(2)
 
         if self.bouncing:
             if self.b_count <= 3:
@@ -396,13 +405,14 @@ class Boss:
 
         # moves the sprite
         self.canvas.move(self.sprite, self.x, self.y)
-        if not self.facing == self.current_facing:
-            self.change_direction(self.facing)
+
+        #if not self.facing == self.current_facing:
+          #  self.change_direction(self.facing)
         # sets the current coords to whatever the new coords are
-        self.currentx1 = self.canvas.coords(self.sprite)[0]
-        self.currenty1 = self.canvas.coords(self.sprite)[1]
-        self.currentx2 = self.canvas.coords(self.sprite)[2]
-        self.currenty2 = self.canvas.coords(self.sprite)[3]
+        self.currentx1 = self.canvas.coords(self.sprite)[0] - self.size
+        self.currenty1 = self.canvas.coords(self.sprite)[1] - self.size
+        self.currentx2 = self.canvas.coords(self.sprite)[0] + self.size
+        self.currenty2 = self.canvas.coords(self.sprite)[1] + self.size
 
         self.canvas.after(70, self.move)
 
@@ -428,10 +438,11 @@ class Boss:
         self.canvas.itemconfig(self.sprite, image=self.directions[dir])
 
     def defeat(self):
+        self.player.set_player_data(6, self.player.player_data[6] + 1)
         self.alive = False
         self.canvas.delete(self.sprite)
         self.canvas.bosswin = True
-        self.canvas.enemies_alive -=1
+        self.canvas.enemies_alive -= 1
 
 
 class Items:
@@ -444,7 +455,7 @@ class Items:
         #x and y are the movement
         self.x = 0
         self.y = 0
-        self.level = l
+        self.level = 10
         if self.level <= 20:
             self.environment = "Forest"
             self.color1 = "DarkOliveGreen3"
@@ -487,7 +498,7 @@ class Items:
         self.currentx2 = self.currentx1 + 50
         self.currenty2 = self.currenty1 + 50
         self.bladebool = False
-        self.hit = False
+        self.hit_list = []
         self.canvas.bosswin = False
         self.canvas.enemies_alive = 0
         self.boss_checked = False
@@ -534,16 +545,6 @@ class Items:
 
         self.lowerborderL = self.canvas.create_rectangle(0, 353, 200, 400, fill=self.color2)
         self.lowerborderR = self.canvas.create_rectangle(400, 353, 600, 400, fill=self.color2)
-        """
-        if self.environment == "Boss Fight":
-            self.upperborder = self.canvas.create_rectangle(0, 0, 600, 20, fill=self.color2)
-            self.obstacles["UpperBorder"] = self.upperborder
-        else:
-            self.upperborderL = self.canvas.create_rectangle(0, 0, 280, 20, fill=self.color2)
-            self.upperborderR = self.canvas.create_rectangle(315, 0, 600, 20, fill=self.color2)
-            self.obstacles["UpperBorderL"] = self.upperborderL
-            self.obstacles["UpperBorderR"] = self.upperborderR
-        """
         self.upperborder = self.canvas.create_rectangle(0, 0, 600, 20, fill=self.color2)
         self.obstacles["UpperBorder"] = self.upperborder
 
@@ -553,23 +554,19 @@ class Items:
         self.obstacles["LowerBorderR"] = self.lowerborderR
 
     def bossfight(self):
-        self.boss = Boss(self.canvas, self.player, (self.level/10)-1)
+        self.boss = Boss(self.canvas, self.player, (int)(self.level/10)-1, self.obstacles)
         self.stack.append(self.boss)
-        self.enemies["Boss"] = self.boss.getsprite()
-
-        """
-        self.boss = Bestiary(self.canvas, "Slime King", "Slime King", self.obstacles)
-        self.stack.append(self.boss)
-        self.enemies["Slime King"] = self.boss.getsprite()
-        """
+        self.enemies[self.boss.gettype()] = self.boss.getsprite()
+        self.canvas.enemies_alive += 1
 
 
-
+    """
     def kuya(self, swords):
         if swords <= 5:
             self.boss.specialdamage(5*swords)
         else:
             self.boss.specialdamage(25)
+    """
 
     def loadenemies(self, a):
         self.acounter = 0
@@ -580,6 +577,7 @@ class Items:
             self.acounter = self.acounter + 1
             self.canvas.enemies_alive += 1
 
+    #changes the player's health
     def changehealth(self, change):
         self.player.change_current_health(change)
         self.canvas.coords(self.fullhealthbar, 420, 365,
@@ -617,12 +615,12 @@ class Items:
                         self.player.subtractitem(5, 1)
                         a.removesprite()
                     elif a.gettype() == "Slime" and a.getid() == x:
-                        if not self.hit:
-                            self.hit = True
+                        if not a in self.hit_list:
+                            self.hit_list.append(a)
                             a.damage(self.player.player_data[4])
-                    elif a.gettype() == "Slime King" and a.getid() == x:
-                        if not self.hit:
-                            self.hit = True
+                    elif a.gettype() == "Boss" and a.getid() == x:
+                        if not a in self.hit_list:
+                            self.hit_list.append(a)
                             a.damage(self.player.player_data[4])
 
         if (self.facing == 2 and self.bx1 <= self.currentx1) or (self.facing == 0 and self.bx2 >= self.currentx2)\
@@ -631,7 +629,7 @@ class Items:
             self.by = 0
             self.canvas.delete(self.blade)
             self.bladebool = False
-            self.hit = False
+            self.hit_list = []
             return
         self.canvas.move(self.blade, self.bx, self.by)
         if (self.canvas.bosswin or self.canvas.enemies_alive == 0) and not self.boss_checked:
@@ -739,8 +737,9 @@ class Items:
 
             #let enemies know where player is
             for x in self.stack:
-                if x.gettype() == "Slime" or x.gettype() == "Slime King":
-                    x.getplayercoords(self.currentx1, self.currenty1, self.facing)
+                if x.gettype() == "Slime" or x.getid() == "Boss":
+                    x.getplayercoords(self.canvas.coords(self.playersprite)[0],
+                                      self.canvas.coords(self.playersprite)[1], self.facing)
 
             #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
             self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
@@ -764,7 +763,6 @@ class Items:
     def back(self):
         self.canvas.grid_forget()
 
-
     def left(self, event):
         if not self.bladebool:
             self.leftpressed = True
@@ -781,7 +779,6 @@ class Items:
             self.x = 5
             self.y = 0
 
-
     def up(self, event):
         if not self.bladebool:
             self.uppressed = True
@@ -797,7 +794,6 @@ class Items:
             self.facing = 2
             self.x = 0
             self.y = 5
-
 
     def stop(self, event):
         if event.keysym == "Left":

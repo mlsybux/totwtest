@@ -255,9 +255,9 @@ class Databanks:
             self.size = self.object[4]
         elif type == "Player":
             #name, title, kingdom, health, attack, furthest level, crowns
-            self.player_data = ["Ako", "Overlord", "Kaharian", 100, 10, 0, 1]
+            self.player_data = ["Ako", "Overlord", "Kaharian", 300, 10, 0, 0]
             #current health
-            self.current_data = [100]
+            self.current_data = [300]
             #wood, stone, coal, trees, swords, axe
             self.inventory = [0, 0, 0, 0, 0, 0]
 
