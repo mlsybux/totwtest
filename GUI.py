@@ -580,10 +580,7 @@ def goback(c, e):
         #root.unbind("<KeyPress-Down>")
         #root.unbind("<KeyPress-Up>")
         root.unbind("<KeyPress>")
-        if c.getbosswin():
-            changescreen(goArray, "Win")
-        else:
-            changescreen(goArray, "Home")
+        changescreen(goArray, "Home")
     elif e.char == "v":
         c.cuttree()
     elif e.char == "x" and not c.inventoryup:

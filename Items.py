@@ -253,7 +253,7 @@ class Boss:
                        ["Dobhran", 150, 3, 25], ["Seileach", 150, 3, 40], ["Terkun", 150, 3, 25], ["Nahla", 150, 3, 40],
                        ["Dreki", 150, 3, 60], ["Eldi", 150, 3, 60]]
 
-        self.type = self.bosses[id][0]
+        self.name = self.bosses[id][0]
         self.health, self.maxhealth = self.bosses[id][1], self.bosses[id][1]
         self.attack = self.bosses[id][2]
         self.size = self.bosses[id][3]
@@ -299,13 +299,14 @@ class Boss:
         self.currenty1 = 100 - self.size
         self.currentx2 = 300 + self.size
         self.currenty2 = 100 + self.size
+        self.healthbar()
         self.move()
 
     def healthbar(self):
         self.healthbarexists = True
         self.emptyhealthbar = self.canvas.create_rectangle(20, 365, 180, 385, fill="white")
         self.fullhealthbar = self.canvas.create_rectangle(20, 365, (self.health / self.maxhealth) * 160 + 20, 385,
-                                                          fill="red")
+                                                          fill="dark red")
 
     def changehealth(self, change):
         self.health = self.health + change
@@ -423,10 +424,10 @@ class Boss:
         return self.attack
 
     def getid(self):
-        return "Boss"
+        return self.name
 
     def gettype(self):
-        return self.type
+        return "Boss"
 
     def getplayercoords(self, px, py, pd):
         self.pcoords[0] = px
@@ -556,7 +557,7 @@ class Items:
     def bossfight(self):
         self.boss = Boss(self.canvas, self.player, (int)(self.level/10)-1, self.obstacles)
         self.stack.append(self.boss)
-        self.enemies[self.boss.gettype()] = self.boss.getsprite()
+        self.enemies[self.boss.getid()] = self.boss.getsprite()
         self.canvas.enemies_alive += 1
 
 
@@ -737,7 +738,7 @@ class Items:
 
             #let enemies know where player is
             for x in self.stack:
-                if x.gettype() == "Slime" or x.getid() == "Boss":
+                if x.gettype() == "Slime" or x.gettype() == "Boss":
                     x.getplayercoords(self.canvas.coords(self.playersprite)[0],
                                       self.canvas.coords(self.playersprite)[1], self.facing)
 
@@ -754,7 +755,7 @@ class Items:
                             self.player.additem(2, 2)
                         a.removesprite()
                     elif a.getid() == x and x in self.enemies:
-                        if a.gettype() == "Slime" or a.gettype() == "Slime King":
+                        if a.gettype() == "Slime" or a.gettype() == "Boss":
                             self.changehealth(-a.getattack())
             #after 70 ticks, it calls itself again
             self.canvas.after(70, self.movement)
