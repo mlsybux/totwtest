@@ -300,7 +300,25 @@ class Boss:
         self.currentx2 = 300 + self.size
         self.currenty2 = 100 + self.size
         self.healthbar()
-        self.move()
+        #self.move()
+        self.cutscene()
+
+    def cutscene(self):
+        if not self.label_on:
+            self.label_on = True
+            self.story = Story(self.master, self.canvas, self.player, self.script)
+        if self.picup and not self.canvas.popup_up:
+            if not self.label_on:
+                self.label_on = True
+                self.story = Story(self.master, self.canvas, self.player, self.script)
+            elif self.story.text_on:
+                self.story.continue_text()
+                if not self.story.text_on:
+                    self.label_on = False
+                    self.movement()
+            else:
+                self.label_on = False
+                self.movement()
 
     def healthbar(self):
         self.healthbarexists = True

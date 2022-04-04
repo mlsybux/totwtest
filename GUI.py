@@ -604,9 +604,9 @@ def castle():
 
 #main running stuff
 #title()
-gameover()
-explore()
-#home()
+#gameover()
+#explore()
+home()
 
 #castle()
 root.mainloop()

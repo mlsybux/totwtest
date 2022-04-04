@@ -1,5 +1,6 @@
 from tkinter import *
-from Home import Popups, NPC
+from Home import NPC
+from Story import *
 
 class Morgan:
     def __init__(self, master, player):
@@ -30,11 +31,12 @@ class Morgan:
         # wood, stone, coal, tree, swords, axes
         self.inventory = self.player.inventory
         self.obstacles = {}
-        self.script = []
+        self.script = ""
         self.index = 0
         self.npc_list = [NPC(self.master, self.canvas, 2), NPC(self.master, self.canvas, 3)]
         self.picup = False
         self.parchmentup = False
+        self.canvas.popup_up = False
         self.label = Label(master, bg="white", width=80, height=3)
         self.label_on = False
         self.loadborders()
@@ -65,24 +67,17 @@ class Morgan:
         self.obstacles["LowerBorder"] = self.lowerborder
 
     def interaction(self):
-        if self.picup and not self.parchmentup:
+        if self.picup and not self.canvas.popup_up:
             if not self.label_on:
                 self.label_on = True
-                self.label.configure(text=self.script[self.index])
-                self.label.grid(row=4, column=2, rowspan=4)
-            elif len(self.script) > self.index + 1:
-                self.index = self.index + 1
-                if self.script[self.index] == "{PARCHMENT}":
-                    self.open_popup(2)
-                elif self.script[self.index] == "{SLEEP}":
-                    self.open_popup(3)
-                else:
-                    self.label.configure(text=self.script[self.index])
+                self.story = Story(self.master, self.canvas, self.player, self.script)
+            elif self.story.text_on:
+                self.story.continue_text()
+                if not self.story.text_on:
+                    self.label_on = False
+                    self.movement()
             else:
                 self.label_on = False
-                self.script = []
-                self.index = 0
-                self.label.grid_forget()
                 self.movement()
 
     def open_popup(self, id):
@@ -100,10 +95,12 @@ class Morgan:
         self.index = 0
         for x in array:
             x.grid_forget()
-        self.movement()
+        #self.movement()
 
     def movement(self):
-        if not self.parchmentup:
+        if self.label_on:
+            return
+        if not self.canvas.popup_up:
             #checks for obstacles
             if self.currenty1 <= 0:
                 self.y = 0
@@ -134,15 +131,15 @@ class Morgan:
                 else:
                     npc.set_inrange(False)
                     self.picup = False
-            #calls itself again
-            self.canvas.after(70, self.movement)
+        #calls itself again
+        self.canvas.after(70, self.movement)
     # navigation
     def back(self):
         self.canvas.grid_forget()
 
 
     def left(self, event):
-        if not self.parchmentup:
+        if not (self.label_on or self.canvas.popup_up):
             self.leftpressed = True
             self.canvas.itemconfig(self.playersprite, image=self.pleft)
             self.facing = 3
@@ -150,7 +147,7 @@ class Morgan:
             self.y = 0
 
     def right(self, event):
-        if not self.parchmentup:
+        if not (self.label_on or self.canvas.popup_up):
             self.rightpressed = True
             self.canvas.itemconfig(self.playersprite, image=self.pright)
             self.facing = 1
@@ -159,7 +156,7 @@ class Morgan:
 
 
     def up(self, event):
-        if not self.parchmentup:
+        if not (self.label_on or self.canvas.popup_up):
             self.uppressed = True
             self.canvas.itemconfig(self.playersprite, image=self.pback)
             self.facing = 0
@@ -167,7 +164,7 @@ class Morgan:
             self.y = -5
 
     def down(self, event):
-        if not self.parchmentup:
+        if not (self.label_on or self.canvas.popup_up):
             self.downpressed = True
             self.canvas.itemconfig(self.playersprite, image=self.psprite)
             self.facing = 2
