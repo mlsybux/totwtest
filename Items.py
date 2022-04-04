@@ -410,10 +410,10 @@ class Boss:
         #if not self.facing == self.current_facing:
           #  self.change_direction(self.facing)
         # sets the current coords to whatever the new coords are
-        self.currentx1 = self.canvas.coords(self.sprite)[0] - self.size
-        self.currenty1 = self.canvas.coords(self.sprite)[1] - self.size
-        self.currentx2 = self.canvas.coords(self.sprite)[0] + self.size
-        self.currenty2 = self.canvas.coords(self.sprite)[1] + self.size
+        self.currentx1 = self.canvas.coords(self.sprite)[0] - self.size + 10
+        self.currenty1 = self.canvas.coords(self.sprite)[1] - self.size + 10
+        self.currentx2 = self.canvas.coords(self.sprite)[0] + self.size - 10
+        self.currenty2 = self.canvas.coords(self.sprite)[1] + self.size - 10
 
         self.canvas.after(70, self.move)
 
@@ -561,14 +561,6 @@ class Items:
         self.canvas.enemies_alive += 1
 
 
-    """
-    def kuya(self, swords):
-        if swords <= 5:
-            self.boss.specialdamage(5*swords)
-        else:
-            self.boss.specialdamage(25)
-    """
-
     def loadenemies(self, a):
         self.acounter = 0
         while self.acounter < a:
@@ -624,8 +616,8 @@ class Items:
                             self.hit_list.append(a)
                             a.damage(self.player.player_data[4])
 
-        if (self.facing == 2 and self.bx1 <= self.currentx1) or (self.facing == 0 and self.bx2 >= self.currentx2)\
-                or (self.facing == 3 and self.by1 <= self.currenty1) or (self.facing == 1 and self.by2 >= self.currenty2):
+        if (self.facing == 2 and self.bx1 <= self.currentx1+15) or (self.facing == 0 and self.bx2 >= self.currentx2-15)\
+                or (self.facing == 3 and self.by1 <= self.currenty1+15) or (self.facing == 1 and self.by2 >= self.currenty2-15):
             self.bx = 0
             self.by = 0
             self.canvas.delete(self.blade)
@@ -646,13 +638,13 @@ class Items:
     def cuttree(self):
         if not self.bladebool:
             if self.facing == 0:
-                self.blade = self.canvas.create_rectangle(self.currentx1, self.currenty1 - 15, self.currentx1 + 5, self.currenty1)
+                self.blade = self.canvas.create_rectangle(self.currentx1+5, self.currenty1 - 25, self.currentx1 + 10, self.currenty1)
             elif self.facing == 1:
-                self.blade = self.canvas.create_rectangle(self.currentx2, self.currenty1, self.currentx2 + 15, self.currenty1 + 5)
+                self.blade = self.canvas.create_rectangle(self.currentx2, self.currenty1+5, self.currentx2 + 25, self.currenty1 + 10)
             elif self.facing == 2:
-                self.blade = self.canvas.create_rectangle(self.currentx2-5, self.currenty2, self.currentx2, self.currenty2+15)
+                self.blade = self.canvas.create_rectangle(self.currentx2-10, self.currenty2, self.currentx2-5, self.currenty2+25)
             else:
-                self.blade = self.canvas.create_rectangle(self.currentx1-15, self.currenty2 - 5, self.currentx1, self.currenty2)
+                self.blade = self.canvas.create_rectangle(self.currentx1-25, self.currenty2 - 10, self.currentx1, self.currenty2-5)
 
             self.swingblade()
 
@@ -701,12 +693,7 @@ class Items:
                 self.ind = self.ind + 1
                 self.i = self.i + 1
             self.penisboi = self.penisboi + 1
-        #this part makes the tree on the border
-        """
-        self.stack.append(Resource(self.canvas, "Tree", "BorderTree"))
-        self.stack[self.i].setlocation(285, 2, 310, 27)
-        self.obstacles[self.stack[self.i].getid()] = self.stack[self.i].getsprite()
-        """
+
 
     def hasobstacle(self, x1, y1, x2, y2):
         self.c_object = self.canvas.find_overlapping(x1, y1, x2, y2)

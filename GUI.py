@@ -399,143 +399,7 @@ def oldhome():
     thisArray = [[0, 2, 4],
                  [0, 2, 4],
                  [exploreB, craftB, talkB, menuB]]
-    """
-    homecanvas = Canvas(root, width=600, height=400, bg="gray")
-    homecanvas.grid(row=0, column=0, rowspan=3, columnspan=2)
-    x = 0
-    y = 0
 
-    sprite = canvas.create_rectangle(25, 25, 50, 50, fill="purple")
-
-    downp = False
-    upp = False
-    leftp = False
-    rightp = False
-    picup = False
-
-
-    thisArray = [[], [], [homecanvas]]
-    """
-"""
-def craftitem(itemname, itemlabel):
-    if itemname == "Axe" and playerInventory[0] >= 5 and playerInventory[1] >= 3:
-        playerInventory[0] = playerInventory[0] - 5
-        playerInventory[1] = playerInventory[1] - 3
-        playerInventory[5] = playerInventory[5] + 1
-        itemlabel.config(text="Axe: Used for cutting down trees.\nMaterials:\nWood: " + str(playerInventory[0]) +
-                                "/5\nStone: " + str(playerInventory[1]) + "/3\nCurrent Amount: " + str(playerInventory
-                                                                                                       [5]))
-    elif itemname == "Sword" and playerInventory[0] >= 2 and playerInventory[1] >= 10 and playerInventory[2] >= 5:
-        playerInventory[0] = playerInventory[0] - 2
-        playerInventory[1] = playerInventory[1] - 10
-        playerInventory[2] = playerInventory[2] - 5
-        playerInventory[4] = playerInventory[4] + 1
-        itemlabel.config(text="Sword: A WEAPON\nMaterials:\nWood: " + str(playerInventory[0]) + "/2\nStone: " +
-                         str(playerInventory[1]) + "/10\nCoal: " + str(playerInventory[2]) +
-                              "/5\n Current Amount: " + str(playerInventory[4]))
-
-def crafttext(itemname, itemlabel):
-    global selectedcraft
-    if itemname == "Sword":
-        itemlabel.config(text="Sword: A WEAPON\nMaterials:\nWood: " + str(playerInventory[0]) + "/2\nStone: " +
-                              str(playerInventory[1]) + "/10\nCoal: " + str(playerInventory[2]) +
-                              "/5\n Current Amount: " + str(playerInventory[4]))
-    elif itemname == "Axe":
-        itemlabel.config(text="Axe: Used for cutting down trees.\nMaterials:\nWood: " + str(playerInventory[0]) +
-                              "/5\nStone: " + str(playerInventory[1]) + "/3\nCurrent Amount: " + str(playerInventory
-                                                                                                     [5]))
-    selectedcraft = itemname
-
-def craft():
-    global selectedcraft
-    selectedcraft = "Axe"
-    backB = Button(root, text="Back", command=lambda: changescreen(thisArray, "Home"))
-    craftLabel = Label(root, text="Axe: Used for cutting down trees.\nMaterials:\nWood: " + str(playerInventory[0]) +
-                                "/5\nStone: " + str(playerInventory[1]) + "/3\nCurrent Amount: " + str(playerInventory
-                                                                                                       [5]))
-    craftButton = Button(root, text="Craft", command=lambda: craftitem(selectedcraft, craftLabel))
-
-    axeButton = Button(root, text="Axe", command=lambda: crafttext("Axe", craftLabel))
-
-    swordButton = Button(root, text="Sword", command=lambda: crafttext("Sword", craftLabel))
-
-    #invLabel.grid(row=1, column=2)
-    backB.grid(row=3, column=1)
-    craftLabel.grid(row=1, column=2)
-    craftButton.grid(row=2, column=2)
-    swordButton.grid(row=2, column=3)
-    axeButton.grid(row=1, column=3)
-
-    thisArray = [[],
-                 [],
-                 [backB, craftButton, craftLabel, swordButton, axeButton]]
-
-def menu():
-    global higheststagelevel
-    playerLabel = Label(root, text=lineprocess("{playerTitle} {playerName} of {playerKingdom} Kingdom"))
-    invLabel = Label(root, text="Inventory: \nWood: " + str(playerInventory[0]) + "\nStone: " + str(playerInventory[1])
-                                + "\nCoal: " + str(playerInventory[2]) + "\nAxes: " + str(playerInventory[5]))
-    levLabel = Label(root, text="Furthest Level: " + str(higheststagelevel))
-    backB = Button(root, text="Back", command=lambda: changescreen(thisArray, "Home"))
-    optionsB = Button(root, text="Options", command=lambda: changescreen(thisArray, "Options"))
-    returnB = Button(root, text="Return to Title", command=lambda: changescreen(thisArray, "Title"))
-
-    playerLabel.grid(row=1, column=1)
-    invLabel.grid(row=1, column=2)
-    levLabel.grid(row=2, column=2)
-    backB.grid(row=2, column=1)
-    optionsB.grid(row=3, column=1)
-    returnB.grid(row=4, column=1)
-
-    thisArray = [[],
-                 [],
-                 [playerLabel, invLabel, levLabel, backB, returnB, optionsB]]
-
-def options():
-    changeName = Button(root, text="Change Your Name", command=lambda: changescreen(thisArray, "Set Name"))
-    changeTitle = Button(root, text= "Change Your Title", command=lambda: changescreen(thisArray, "Set Title"))
-    changeKingdom = Button(root, text="Change Your Kingdom's Name", command=lambda: changescreen(thisArray,
-                                                                                                 "Set Kingdom"))
-    backB = Button(root, text="Go Back", command=lambda:changescreen(thisArray, "Menu"))
-
-
-    changeName.grid(row=0, column=0)
-    changeTitle.grid(row=1, column=0)
-    changeKingdom.grid(row=2, column=0)
-    backB.grid(row=3, column=0)
-
-    thisArray = [[],
-                 [],
-                 [changeName, changeTitle, changeKingdom, backB]]
-
-
-def choosefighter():
-    removeB = Button(root, text="Remove")
-    
-
-def prepwar():
-    # Labels/GUI
-    head = Label(root, text="Set your fighters!")
-    slot1 = Label(root, text="Front")
-    slot2 = Label(root, text="Rear")
-    slot1F = Label(root, text="None Selected")
-    slot2F = Label(root, text="None Selected")
-    slot1B = Button(root, text="Change")
-    slot2B = Button(root, text="Change")
-    backB = Button(root, text="Back", command=lambda: changescreen(thisArr, "Home"))
-
-    head.grid(row=0, column=1)
-    backB.grid(row=0, column=0)
-    slot1.grid(row=1, column=0)
-    slot2.grid(row=1, column=2)
-    slot1F.grid(row=2, column=0)
-    slot2F.grid(row=2, column=0)
-    root.grid_rowconfigure(2, weight=1)
-    slot1B.grid(row=3, column=0)
-    slot2B.grid(row=3, column=2)
-
-    thisArr = [[2], [], [head, slot1, slot2, slot1F, slot2F, slot1B, slot2B, backB]]
-    """
 #explore game
 
 
@@ -637,25 +501,6 @@ def explore():
     test = Items(root, stagelevels, player)
     if player.player_data[5] < stagelevels:
         player.set_player_data(5, stagelevels)
-    """
-    if higheststagelevel < stagelevels:
-        higheststagelevel = stagelevels
-   
-    if chosen_envi == "Boss Fight":
-        test.kuya(player.inventory[4])
-    if higheststagelevel < stagelevels:
-        higheststagelevel = stagelevels
-        if higheststagelevel == 5:
-            test.back()
-            changescreen(goArray, "ETalk")
-    if stagelevels == 5 and chosen_envi == "Cave":
-        test.back()
-        changescreen(goArray, "ETalk2")
-    else:
-        newhighestcutscene = 0
-    #test.loadinventory(player.inventory)
-    #test.loadstats(stats)
-    """
     root.bind("<KeyPress-Left>", lambda e: test.left(e))
     root.bind("<KeyPress-Right>", lambda e: test.right(e))
     #root.bind("<KeyPress-Up>", lambda e: test.up(e))
@@ -668,19 +513,7 @@ def explore():
     root.bind("<KeyRelease-Down>", lambda e: test.stop(e))
     root.bind("<KeyPress>", lambda e: goback(test, e))
 
-"""
-def homeup(c, e):
-    global stopkeys, stagelevels, player
-    if c.currenty1 < 0 and not stopkeys:
-        print("homeup's if was called")
-        stopkeys = True
-        c.back()
-        player.reset_health()
-        stagelevels = 0
-        changescreen([[], [], []], "Explore")
-    else:
-        c.up(e)
-        """
+
 
 def e_movement(c, e):
     if c.currenty1 <= 0:
