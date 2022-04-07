@@ -39,6 +39,7 @@ class Morgan:
         self.canvas.popup_up = False
         self.label = Label(master, bg="white", width=80, height=3)
         self.label_on = False
+        day = 1
         self.loadborders()
         self.movement()
 

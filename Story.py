@@ -255,7 +255,7 @@ class Scripts:
                                    "Azretta: Are you the little pest who has been terrorizing the residents of my "
                                    "forest?", "Player: Um.", "Player: Well, 'pest' is a little harsh...",
                                    "Player: Wait, 'my forest'? Are you the Queen here?",
-                                   "Player: That means if I beat you, I get this forest, right?"
+                                   "Player: That means if I beat you, I get this forest, right?",
                                    "Azretta: Me? Queen? No, the queen is much more powerful than me.",
                                    "Azretta: But as her knight and protector of this forest, I'm afraid I can't"
                                    " allow you to pass.", "Azretta: En garde!"]

@@ -1,4 +1,5 @@
 from tkinter import *
+from sqlite3 import *
 from Items import *
 from Home import *
 from Morgan import *
@@ -83,6 +84,11 @@ playerTitle = "Overlord"
 #boolean to make sure that functions don't get called multiple times before keys can be unbound
 stopkeys = False
 
+#save/load stuff
+conn = connect('totw_save.db')
+cur = conn.cursor()
+
+
 #the function to clear the old screen and call the new
 def changescreen(arr, new):
     global nameon, stagelevels, chosen_envi, unlockedstages
@@ -148,6 +154,7 @@ def changescreen(arr, new):
         pass
     else:
         print("This has not been made in yet!")
+
 
 #functions for making choices with buttons/entries for the screens to call on
 def setchoice(a, t):
@@ -430,25 +437,28 @@ def gameover():
 def goback(c, e):
     global stagelevels, goArray
     global stats
-    if e == "q" or e.char == "q":
-        """
-        i = 0
-        stats = 100
-        while i < len(player.inventory):
-            player.inventory[i] = c.getinventory()[i]
-            i = i + 1
-        """
-        c.back()
-        stagelevels = 0
-        player.reset_health()
-        #root.unbind("<KeyPress-Down>")
-        #root.unbind("<KeyPress-Up>")
-        root.unbind("<KeyPress>")
-        changescreen(goArray, "Home")
-    elif e.char == "v":
-        c.cuttree()
-    elif e.char == "x" and not c.inventoryup:
-        c.open_popup(1)
+    if c.cutscene_over:
+        if e == "q" or e.char == "q":
+            """
+            i = 0
+            stats = 100
+            while i < len(player.inventory):
+                player.inventory[i] = c.getinventory()[i]
+                i = i + 1
+            """
+            c.back()
+            stagelevels = 0
+            player.reset_health()
+            #root.unbind("<KeyPress-Down>")
+            #root.unbind("<KeyPress-Up>")
+            root.unbind("<KeyPress>")
+            changescreen(goArray, "Home")
+        elif e.char == "v":
+            c.cuttree()
+        elif e.char == "x" and not c.inventoryup:
+            c.open_popup(1)
+    elif e.char == "z":
+        c.interaction()
 
 
 def checkdown(c, e):

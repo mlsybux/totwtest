@@ -240,7 +240,8 @@ class Bestiary:
 
 
 class Boss:
-    def __init__(self, canvas, player, id, obs):
+    def __init__(self, master, canvas, player, id, obs):
+        self.master = master
         self.canvas = canvas
         self.player = player
         self.obstacles = obs
@@ -300,25 +301,26 @@ class Boss:
         self.currentx2 = 300 + self.size
         self.currenty2 = 100 + self.size
         self.healthbar()
+        self.cutscene_over = False
+        self.label_on = False
         #self.move()
         self.cutscene()
 
     def cutscene(self):
-        if not self.label_on:
-            self.label_on = True
-            self.story = Story(self.master, self.canvas, self.player, self.script)
-        if self.picup and not self.canvas.popup_up:
+        if not self.cutscene_over:
             if not self.label_on:
                 self.label_on = True
-                self.story = Story(self.master, self.canvas, self.player, self.script)
+                self.story = Story(self.master, self.canvas, self.player, self.name)
             elif self.story.text_on:
                 self.story.continue_text()
                 if not self.story.text_on:
                     self.label_on = False
-                    self.movement()
+                    self.cutscene_over = True
+                    self.move()
             else:
                 self.label_on = False
-                self.movement()
+                self.cutscene_over = True
+                self.move()
 
     def healthbar(self):
         self.healthbarexists = True
@@ -474,7 +476,7 @@ class Items:
         #x and y are the movement
         self.x = 0
         self.y = 0
-        self.level = 10
+        self.level = l
         if self.level <= 20:
             self.environment = "Forest"
             self.color1 = "DarkOliveGreen3"
@@ -497,6 +499,7 @@ class Items:
             self.color2 = "brown4"
         if self.level % 10 == 0:
             self.environment = "Boss Fight"
+        self.cutscene_over = True
         #just saying that all the keys are released by default
         self.leftpressed = False
         self.rightpressed = False
@@ -573,10 +576,16 @@ class Items:
         self.obstacles["LowerBorderR"] = self.lowerborderR
 
     def bossfight(self):
-        self.boss = Boss(self.canvas, self.player, (int)(self.level/10)-1, self.obstacles)
+        self.cutscene_over = False
+        self.boss = Boss(self.master, self.canvas, self.player, (int)(self.level/10)-1, self.obstacles)
         self.stack.append(self.boss)
         self.enemies[self.boss.getid()] = self.boss.getsprite()
         self.canvas.enemies_alive += 1
+
+    def interaction(self):
+        if not self.cutscene_over:
+            self.boss.cutscene()
+            self.cutscene_over = self.boss.cutscene_over
 
 
     def loadenemies(self, a):
@@ -665,6 +674,7 @@ class Items:
                 self.blade = self.canvas.create_rectangle(self.currentx1-25, self.currenty2 - 10, self.currentx1, self.currenty2-5)
 
             self.swingblade()
+
 
     def overlaps(self, x1, y1, x2, y2):
         self.overlap_list = []
