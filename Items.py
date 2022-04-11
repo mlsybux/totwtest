@@ -471,8 +471,6 @@ class Items:
         #Tk
         self.master = master
         self.player = player
-        #wood, stone, coal, tree, gems, axes
-        #self.inventory = [0, 0, 0, 0, 0, 0]
         #x and y are the movement
         self.x = 0
         self.y = 0
@@ -626,22 +624,22 @@ class Items:
         self.by1 = self.canvas.coords(self.blade)[1]
         self.bx2 = self.canvas.coords(self.blade)[2]
         self.by2 = self.canvas.coords(self.blade)[3]
-        if self.player.inventory[5] >= 1:
-            for x in self.overlaps(self.canvas.coords(self.blade)[0], self.canvas.coords(self.blade)[1],
-                                   self.canvas.coords(self.blade)[2], self.canvas.coords(self.blade)[3]):
-                for a in self.stack:
-                    if a.gettype() == "Tree" and a.getid() == x:
-                        self.player.additem(0, 5)
-                        self.player.subtractitem(5, 1)
-                        a.removesprite()
-                    elif a.gettype() == "Slime" and a.getid() == x:
-                        if not a in self.hit_list:
-                            self.hit_list.append(a)
-                            a.damage(self.player.player_data[4])
-                    elif a.gettype() == "Boss" and a.getid() == x:
-                        if not a in self.hit_list:
-                            self.hit_list.append(a)
-                            a.damage(self.player.player_data[4])
+
+        for x in self.overlaps(self.canvas.coords(self.blade)[0], self.canvas.coords(self.blade)[1],
+                               self.canvas.coords(self.blade)[2], self.canvas.coords(self.blade)[3]):
+            for a in self.stack:
+                if a.gettype() == "Tree" and a.getid() == x and self.player.inventory[5] >= 1:
+                    self.player.additem(0, 5)
+                    self.player.subtractitem(5, 1)
+                    a.removesprite()
+                elif a.gettype() == "Slime" and a.getid() == x:
+                    if not a in self.hit_list:
+                        self.hit_list.append(a)
+                        a.damage(self.player.player_data[4])
+                elif a.gettype() == "Boss" and a.getid() == x:
+                    if not a in self.hit_list:
+                        self.hit_list.append(a)
+                        a.damage(self.player.player_data[4])
 
         if (self.facing == 2 and self.bx1 <= self.currentx1+15) or (self.facing == 0 and self.bx2 >= self.currentx2-15)\
                 or (self.facing == 3 and self.by1 <= self.currenty1+15) or (self.facing == 1 and self.by2 >= self.currenty2-15):

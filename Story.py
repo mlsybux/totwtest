@@ -115,24 +115,39 @@ class Popups:
         self.conn = connect('totw_save.db')
         self.cur = self.conn.cursor()
         self.cur.execute("""UPDATE player SET
-                    name = :name,
-                    title = :title,
-                    kingdom = :kingdom,
-                    health = :health,
-                    attack = :attack,
-                    flevel = :flevel,
-                    crowns = :crowns
-                    WHERE oid = 1""",
-                    {
-                        'name': self.player.player_data[0],
-                        'title': self.player.player_data[1],
-                        'kingdom': self.player.player_data[2],
-                        'health': self.player.player_data[3],
-                        'attack': self.player.player_data[4],
-                        'flevel': self.player.player_data[5],
-                        'crowns': self.player.player_data[6]
-                    })
-        self.cur.execute("SELECT *, oid FROM player")
+                name = :name,
+                title = :title,
+                kingdom = :kingdom,
+                health = :health,
+                attack = :attack,
+                flevel = :flevel,
+                crowns = :crowns,
+                chealth = :chealth,
+                wood = :wood,
+                stone = :stone,
+                coal = :coal,
+                tree = :tree,
+                sword = :sword,
+                axe = :axe
+                WHERE oid = 1""",
+                {
+                    'name': self.player.player_data[0],
+                    'title': self.player.player_data[1],
+                    'kingdom': self.player.player_data[2],
+                    'health': self.player.player_data[3],
+                    'attack': self.player.player_data[4],
+                    'flevel': self.player.player_data[5],
+                    'crowns': self.player.player_data[6],
+                    'chealth': self.player.current_data[0],
+                    'wood': self.player.inventory[0],
+                    'stone': self.player.inventory[1],
+                    'coal': self.player.inventory[2],
+                    'tree': self.player.inventory[3],
+                    'sword': self.player.inventory[4],
+                    'axe': self.player.inventory[5]
+
+                })
+        #self.cur.execute("SELECT *, oid FROM player")
         self.conn.commit()
         self.conn.close()
 
@@ -286,6 +301,18 @@ class Scripts:
                                    "Azretta: Me? Queen? No, the queen is much more powerful than me.",
                                    "Azretta: But as her knight and protector of this forest, I'm afraid I can't"
                                    " allow you to pass.", "Azretta: En garde!"]
+        self.archive["End"] = ["Hey.", "I don't know if anyone is going to read this, but...", "Did you have fun?",
+                               "...", "I guess it doesn't matter that much.", "I hope you did, though.", "After all...",
+                               "Kuya: Isn't that the point of a game?", "Kuya: Though, I guess...",
+                               "Kuya: The point was to take over the world, wasn't it?", "Kuya: Congrats, by the way.",
+                               "Kuya: You took over the world!", "Kuya: You beat the game.", "Kuya: ...",
+                               "Kuya: Yeah, I figured you wouldn't be too satisfied with this kind of ending.",
+                               "Kuya: Sorry, but...", "Kuya: There isn't any more 'world' to take over.",
+                               "Kuya: This is the end.",
+                               "Kuya: But what's the point of a game when there isn't anything left to do?",
+                               "Kuya: Just a heads up, but...",
+                               "Kuya: If you really wanna hold onto this 'world', you'd better close out now.",
+                               "Kuya: No?", "Kuya: Well, alright then.", "Kuya: See you back at the start!", "{END}"]
 
         self.script = self.archive[id]
 
@@ -326,6 +353,9 @@ class Story:
                 self.open_popup(2)
             elif self.script[self.index] == "{SLEEP}":
                 self.open_popup(3)
+            elif self.script[self.index] == "{END}":
+                self.reset()
+                return
             if self.name == "Player: ":
                 self.textbox.config(text=self.player.player_data[0] +
                                          self.script[self.index][self.script[self.index].index(":"):])
@@ -336,16 +366,11 @@ class Story:
             self.canvas.delete(self.portrait)
             self.textbox.grid_forget()
 
+
     def open_popup(self, id):
         self.text_on = False
         self.canvas.popup_up = True
         self.textbox.grid_forget()
-        """
-        if self.index < len(self.script) - 1:
-            self.index = self.index + 1
-        else:
-            self.index = 0
-            """
         self.popup = Popups(self.master, id, self.player)
         self.exitB = Button(self.master, text="X",
                             command=lambda: self.close_popup([self.popup.canvas, self.exitB]))
@@ -357,3 +382,29 @@ class Story:
         self.index = 0
         for x in array:
             x.grid_forget()
+
+    def reset(self):
+        self.conn = connect('totw_save.db')
+        self.cur = self.conn.cursor()
+        self.cur.execute("""UPDATE player SET
+                    name = :name,
+                    title = :title,
+                    kingdom = :kingdom,
+                    health = :health,
+                    attack = :attack,
+                    flevel = :flevel,
+                    crowns = :crowns
+                    WHERE oid = 1""",
+                    {
+                        'name': self.player.player_data[0],
+                        'title': self.player.player_data[1],
+                        'kingdom': self.player.player_data[2],
+                        'health': 300,
+                        'attack': 10,
+                        'flevel': 0,
+                        'crowns': 0
+                    })
+        self.cur.execute("SELECT *, oid FROM player")
+        self.conn.commit()
+        self.conn.close()
+        self.master.destroy()

@@ -97,6 +97,13 @@ def save():
                 attack = :attack,
                 flevel = :flevel,
                 crowns = :crowns
+                chealth = :chealth,
+                wood = :wood,
+                stone = :stone,
+                coal = :coal,
+                tree = :tree,
+                sword = :sword,
+                axe = :axe
                 WHERE oid = 1""",
                 {
                     'name': player.player_data[0],
@@ -105,11 +112,16 @@ def save():
                     'health': player.player_data[3],
                     'attack': player.player_data[4],
                     'flevel': player.player_data[5],
-                    'crowns': player.player_data[6]
+                    'crowns': player.player_data[6],
+                    'chealth': player.current_data[0],
+                    'wood': player.inventory[0],
+                    'stone': player.inventory[1],
+                    'coal': player.inventory[2],
+                    'tree': player.inventory[3],
+                    'sword': player.inventory[4],
+                    'axe': player.inventory[5]
+
                 })
-    cur.execute("SELECT *, oid FROM player")
-    print("this IS being called")
-    print(cur.fetchall())
     conn.commit()
     conn.close()
 
@@ -122,10 +134,18 @@ def load():
     cur.execute("SELECT *, oid FROM player WHERE oid = 1")
     records = cur.fetchall()[0]
     r = 1
+    inv = []
     for record in records:
-        if r <= 7:
-            player.set_player_data(r-1, record)
+        print(record)
+        if r <= 14:
+            if r <= 7:
+                player.set_player_data(r-1, record)
+            elif r == 8:
+                player.set_current_health(record)
+            else:
+                inv.append(record)
             r += 1
+    player.loadinventory(inv)
 
     conn.commit()
     conn.close()
@@ -141,9 +161,17 @@ def create_save_table():
                     health integer,
                     attack integer,
                     flevel integer,
-                    crowns integer
+                    crowns integer,
+                    chealth integer,
+                    wood integer,
+                    stone integer,
+                    coal integer,
+                    tree integer,
+                    sword integer,
+                    axe integer
                     )""")
-    cur.execute("INSERT INTO player VALUES (:name, :title, :kingdom, :health, :attack, :flevel, :crowns)",
+    cur.execute("INSERT INTO player VALUES (:name, :title, :kingdom, :health, :attack, :flevel, :crowns, :chealth,"
+                "0, 0, 0, 0, 0, 0)",
                 {
                     'name': player.player_data[0],
                     'title': player.player_data[1],
@@ -151,7 +179,8 @@ def create_save_table():
                     'health': player.player_data[3],
                     'attack': player.player_data[4],
                     'flevel': player.player_data[5],
-                    'crowns': player.player_data[6]
+                    'crowns': player.player_data[6],
+                    'chealth': player.player_data[3]
                 }
                 )
     conn.commit()
@@ -165,8 +194,8 @@ def reset_save_table():
     records = cur.fetchall()
     for record in records:
         deleter = record[7]
-        if deleter > 1:
-            cur.execute("DELETE from player WHERE oid = " + str(deleter))
+        #if deleter > 1:
+        cur.execute("DELETE from player WHERE oid = " + str(deleter))
     conn.commit()
     conn.close()
 
@@ -698,8 +727,9 @@ def castle():
 #title()
 #gameover()
 #explore()
-home()
 load()
+home()
+
 
 #castle()
 root.mainloop()

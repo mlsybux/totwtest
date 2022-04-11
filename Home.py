@@ -37,6 +37,9 @@ class Databanks:
     def reset_health(self):
         self.current_data[0] = self.player_data[3]
 
+    def set_current_health(self, c):
+        self.current_data[0] = c
+
     def change_current_health(self, n):
         self.current_data[0] = self.current_data[0] + n
 
@@ -130,32 +133,6 @@ class Home:
         self.loadborders()
         self.movement()
 
-    """
-    def interaction(self):
-        if self.picup and not self.button_up:
-            if not self.label_on:
-                self.label_on = True
-                self.label.configure(text=self.script[self.index])
-                self.label.grid(row=4, column=2, rowspan=4)
-            elif len(self.script) > self.index + 1:
-                self.index = self.index + 1
-                if self.script[self.index] == "{":
-                    self.label_on = False
-                    self.label.grid_forget()
-                    self.index = self.index + 1
-                    self.choice(["Coffee", "Tea", "Water"])
-                elif self.script[self.index] == "{CRAFT}": #and not self.button_up:
-                    self.open_popup(0)
-                else:
-                    self.label.configure(text=self.script[self.index])
-            else:
-                self.label_on = False
-                self.script = []
-                self.index = 0
-                self.label.grid_forget()
-                self.movement()
-                
-        """
 
     def interaction(self):
         if self.picup and not self.canvas.popup_up:
