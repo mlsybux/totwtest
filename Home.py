@@ -28,7 +28,7 @@ class Databanks:
             self.inventory = [0, 0, 0, 0, 0, 0]
 
     def set_player_data(self, x, n):
-        #name, title, kingdom, health
+        #name, title, kingdom, health, attack, furthest level, crowns
         self.player_data[x] = n
 
     def get_current_health(self):
@@ -174,7 +174,8 @@ class Home:
 
     def open_popup(self, id):
         self.label_on = False
-        self.button_up = True
+        #self.button_up = True
+        self.canvas.popup_up = True
         self.label.grid_forget()
         """
         if self.index < len(self.script) - 1:
@@ -189,11 +190,12 @@ class Home:
 
     def close_popup(self, array):
         self.label_on = False
-        self.button_up = False
+        #self.button_up = False
+        self.canvas.popup_up = False
         self.index = 0
         for x in array:
             x.grid_forget()
-        self.movement()
+        #self.movement()
 
 
     def choicemade(self, n, list):

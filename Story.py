@@ -1,4 +1,6 @@
 from tkinter import *
+from sqlite3 import *
+
 
 class Popups:
     def __init__(self, master, ID, player):
@@ -39,20 +41,20 @@ class Popups:
         self.controls_button.grid(row=0, column=3)
         self.menu_bottom = self.canvas.create_window(5, 230, anchor=NW, window=self.menu_bottom_frame)
         #menu specific frames
-        self.menu_stats_frame = Frame(self.master, width=300, height=100)
+        self.menu_stats_frame = Frame(self.master, width=300, height=150)
         self.menu_stats_frame.grid_propagate(False)
         self.menu_stats_frame.grid_columnconfigure(0, weight=1)
-        #self.player_label = Label(self.menu_stats_frame, text="Overlord Ako of Kaharian")
         self.player_label = Label(self.menu_stats_frame, text=self.player.player_data[1] + " " +
                                                               self.player.player_data[0] + " of " +
                                                               self.player.player_data[2] + " Kingdom")
-        #self.stats_label = Label(self.menu_stats_frame, text="Health: 100\nStrength: 10\nFurthest Level: #\nCrowns: 1")
         self.stats_label = Label(self.menu_stats_frame, text="Health: " + str(self.player.player_data[3]) +
                                                              "\nStrength: " + str(self.player.player_data[4]) +
                                                              "\nFurthest Level: " + str(self.player.player_data[5]) +
-                                                             "\nCrowns: " + str(self.player.player_data[6]))
+                                                             "\nCrowns: " + str(self.player.player_data[6]) + "\n")
+        self.save_button = Button(self.menu_stats_frame, text="Save Game", command=lambda: self.save())
         self.player_label.grid(row=0)
         self.stats_label.grid(row=1)
+        self.save_button.grid(row=3)
         #inventory specific frames
         self.inv_frame = Frame(self.master, width=300, height=150)
         self.inv_frame.grid_propagate(False)
@@ -108,6 +110,31 @@ class Popups:
         self.queen_b.grid(row=1)
         self.over_b.grid(row=2)
 
+
+    def save(self):
+        self.conn = connect('totw_save.db')
+        self.cur = self.conn.cursor()
+        self.cur.execute("""UPDATE player SET
+                    name = :name,
+                    title = :title,
+                    kingdom = :kingdom,
+                    health = :health,
+                    attack = :attack,
+                    flevel = :flevel,
+                    crowns = :crowns
+                    WHERE oid = 1""",
+                    {
+                        'name': self.player.player_data[0],
+                        'title': self.player.player_data[1],
+                        'kingdom': self.player.player_data[2],
+                        'health': self.player.player_data[3],
+                        'attack': self.player.player_data[4],
+                        'flevel': self.player.player_data[5],
+                        'crowns': self.player.player_data[6]
+                    })
+        self.cur.execute("SELECT *, oid FROM player")
+        self.conn.commit()
+        self.conn.close()
 
     def change_menu(self, id):
         for x in self.frames_up:

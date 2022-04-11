@@ -84,9 +84,91 @@ playerTitle = "Overlord"
 #boolean to make sure that functions don't get called multiple times before keys can be unbound
 stopkeys = False
 
-#save/load stuff
-conn = connect('totw_save.db')
-cur = conn.cursor()
+#save/load stuff with funky databasessssss
+def save():
+    global player
+    conn = connect('totw_save.db')
+    cur = conn.cursor()
+    cur.execute("""UPDATE player SET
+                name = :name,
+                title = :title,
+                kingdom = :kingdom,
+                health = :health,
+                attack = :attack,
+                flevel = :flevel,
+                crowns = :crowns
+                WHERE oid = 1""",
+                {
+                    'name': player.player_data[0],
+                    'title': player.player_data[1],
+                    'kingdom': player.player_data[2],
+                    'health': player.player_data[3],
+                    'attack': player.player_data[4],
+                    'flevel': player.player_data[5],
+                    'crowns': player.player_data[6]
+                })
+    cur.execute("SELECT *, oid FROM player")
+    print("this IS being called")
+    print(cur.fetchall())
+    conn.commit()
+    conn.close()
+
+
+def load():
+    global player
+    conn = connect('totw_save.db')
+    cur = conn.cursor()
+
+    cur.execute("SELECT *, oid FROM player WHERE oid = 1")
+    records = cur.fetchall()[0]
+    r = 1
+    for record in records:
+        if r <= 7:
+            player.set_player_data(r-1, record)
+            r += 1
+
+    conn.commit()
+    conn.close()
+
+
+def create_save_table():
+    conn = connect('totw_save.db')
+    cur = conn.cursor()
+    cur.execute("""CREATE TABLE player (
+                    name text,
+                    title text,
+                    kingdom text,
+                    health integer,
+                    attack integer,
+                    flevel integer,
+                    crowns integer
+                    )""")
+    cur.execute("INSERT INTO player VALUES (:name, :title, :kingdom, :health, :attack, :flevel, :crowns)",
+                {
+                    'name': player.player_data[0],
+                    'title': player.player_data[1],
+                    'kingdom': player.player_data[2],
+                    'health': player.player_data[3],
+                    'attack': player.player_data[4],
+                    'flevel': player.player_data[5],
+                    'crowns': player.player_data[6]
+                }
+                )
+    conn.commit()
+    conn.close()
+
+
+def reset_save_table():
+    conn = connect('totw_save.db')
+    cur = conn.cursor()
+    cur.execute("SELECT *, oid FROM player")
+    records = cur.fetchall()
+    for record in records:
+        deleter = record[7]
+        if deleter > 1:
+            cur.execute("DELETE from player WHERE oid = " + str(deleter))
+    conn.commit()
+    conn.close()
 
 
 #the function to clear the old screen and call the new
@@ -564,9 +646,9 @@ def movement(c, e, press):
 def home_keypress(c, e):
     if e.char == "z":
         c.interaction()
-    elif e.char == "x" and not c.button_up and not c.label_on:
+    elif e.char == "x" and not c.canvas.popup_up and not c.label_on:
         c.open_popup(1)
-    elif e.char == "q" and not c.button_up and not c.label_on:
+    elif e.char == "q" and not c.canvas.popup_up and not c.label_on:
         c.back()
         changescreen([[], [], []], "Title")
 
@@ -617,6 +699,7 @@ def castle():
 #gameover()
 #explore()
 home()
+load()
 
 #castle()
 root.mainloop()
