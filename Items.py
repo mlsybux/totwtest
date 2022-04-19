@@ -497,6 +497,10 @@ class Items:
             self.color2 = "brown4"
         if self.level % 10 == 0:
             self.environment = "Boss Fight"
+        if self.level >= 101:
+            self.environment = "End"
+            self.color1 = "snow1"
+            self.color2 = "snow3"
         self.cutscene_over = True
         #just saying that all the keys are released by default
         self.leftpressed = False
@@ -522,6 +526,7 @@ class Items:
         self.canvas.bosswin = False
         self.canvas.enemies_alive = 0
         self.boss_checked = False
+        self.ending = False
         self.inventoryup = False
         self.canvas.grid(row=0, column=0, rowspan=5, columnspan=5)
         self.resources = {}
@@ -547,6 +552,10 @@ class Items:
         elif self.environment.startswith("Boss Fight"):
             #self.boss = self.bosses[self.environment[:]]
             self.bossfight()
+        elif self.environment == "End":
+            self.ending = True
+            self.cutscene_over = False
+            self.end_cutscene()
 
 
 
@@ -580,10 +589,23 @@ class Items:
         self.enemies[self.boss.getid()] = self.boss.getsprite()
         self.canvas.enemies_alive += 1
 
+    def end_cutscene(self):
+        self.story = Story(self.master, self.canvas, self.player, "End")
+
     def interaction(self):
         if not self.cutscene_over:
-            self.boss.cutscene()
-            self.cutscene_over = self.boss.cutscene_over
+            if self.ending:
+                if self.story.text_on:
+                    self.story.continue_text()
+                    if not self.story.text_on:
+                        #self.label_on = False
+                        self.cutscene_over = True
+                else:
+                    #self.label_on = False
+                    self.cutscene_over = True
+            else:
+                self.boss.cutscene()
+                self.cutscene_over = self.boss.cutscene_over
 
 
     def loadenemies(self, a):
@@ -730,46 +752,47 @@ class Items:
 
     def movement(self):
         if not self.inventoryup:
-            #checks if there's an obstacle in the direction it's trying to move
-            if self.x < 0 and self.hasobstacle(self.currentx1-5, self.currenty1, self.currentx2-5, self.currenty2):
-                #print("obstacle to the left")
-                self.x = 0
-            if self.x > 0 and self.hasobstacle(self.currentx1+5, self.currenty1, self.currentx2+5, self.currenty2):
-                #print("obstacle to the right")
-                self.x = 0
-            if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1-5, self.currentx2, self.currenty2-5):
-                self.y = 0
-            if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1+5, self.currentx2, self.currenty2+5):
-                self.y = 0
-            #moves the sprite
-            self.canvas.move(self.playersprite, self.x, self.y)
-            #sets the current coords to whatever the new coords are
-            self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
-            self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
-            self.currentx2 = self.currentx1 + 50
-            self.currenty2 = self.currenty1 + 50
+            if self.cutscene_over:
+                #checks if there's an obstacle in the direction it's trying to move
+                if self.x < 0 and self.hasobstacle(self.currentx1-5, self.currenty1, self.currentx2-5, self.currenty2):
+                    #print("obstacle to the left")
+                    self.x = 0
+                if self.x > 0 and self.hasobstacle(self.currentx1+5, self.currenty1, self.currentx2+5, self.currenty2):
+                    #print("obstacle to the right")
+                    self.x = 0
+                if self.y < 0 and self.hasobstacle(self.currentx1, self.currenty1-5, self.currentx2, self.currenty2-5):
+                    self.y = 0
+                if self.y > 0 and self.hasobstacle(self.currentx1, self.currenty1+5, self.currentx2, self.currenty2+5):
+                    self.y = 0
+                #moves the sprite
+                self.canvas.move(self.playersprite, self.x, self.y)
+                #sets the current coords to whatever the new coords are
+                self.currentx1 = self.canvas.coords(self.playersprite)[0] - 25
+                self.currenty1 = self.canvas.coords(self.playersprite)[1] - 25
+                self.currentx2 = self.currentx1 + 50
+                self.currenty2 = self.currenty1 + 50
 
-            #let enemies know where player is
-            for x in self.stack:
-                if x.gettype() == "Slime" or x.gettype() == "Boss":
-                    x.getplayercoords(self.canvas.coords(self.playersprite)[0],
-                                      self.canvas.coords(self.playersprite)[1], self.facing)
+                #let enemies know where player is
+                for x in self.stack:
+                    if x.gettype() == "Slime" or x.gettype() == "Boss":
+                        x.getplayercoords(self.canvas.coords(self.playersprite)[0],
+                                          self.canvas.coords(self.playersprite)[1], self.facing)
 
-            #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
-            self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
-            for x in self.o_list:
-                for a in self.stack:
-                    if a.getid() == x and x in self.resources:
-                        if a.gettype() == "Wood":
-                            self.player.additem(0, 3)
-                        elif a.gettype() == "Stone":
-                            self.player.additem(1, 3)
-                        elif a.gettype() == "Coal":
-                            self.player.additem(2, 2)
-                        a.removesprite()
-                    elif a.getid() == x and x in self.enemies:
-                        if a.gettype() == "Slime" or a.gettype() == "Boss":
-                            self.changehealth(-a.getattack())
+                #gets the list of whatever it's overlapping, then iterates through it to either get it or get hurt
+                self.o_list = self.overlaps(self.currentx1, self.currenty1, self.currentx2, self.currenty2)
+                for x in self.o_list:
+                    for a in self.stack:
+                        if a.getid() == x and x in self.resources:
+                            if a.gettype() == "Wood":
+                                self.player.additem(0, 3)
+                            elif a.gettype() == "Stone":
+                                self.player.additem(1, 3)
+                            elif a.gettype() == "Coal":
+                                self.player.additem(2, 2)
+                            a.removesprite()
+                        elif a.getid() == x and x in self.enemies:
+                            if a.gettype() == "Slime" or a.gettype() == "Boss":
+                                self.changehealth(-a.getattack())
             #after 70 ticks, it calls itself again
             self.canvas.after(70, self.movement)
 
@@ -778,7 +801,7 @@ class Items:
         self.canvas.grid_forget()
 
     def left(self, event):
-        if not self.bladebool:
+        if not self.bladebool and self.cutscene_over:
             self.leftpressed = True
             self.canvas.itemconfig(self.playersprite, image=self.pleft)
             self.facing = 3
@@ -786,7 +809,7 @@ class Items:
             self.y = 0
 
     def right(self, event):
-        if not self.bladebool:
+        if not self.bladebool and self.cutscene_over:
             self.rightpressed = True
             self.canvas.itemconfig(self.playersprite, image=self.pright)
             self.facing = 1
@@ -794,7 +817,7 @@ class Items:
             self.y = 0
 
     def up(self, event):
-        if not self.bladebool:
+        if not self.bladebool and self.cutscene_over:
             self.uppressed = True
             self.canvas.itemconfig(self.playersprite, image=self.pback)
             self.facing = 0
@@ -802,7 +825,7 @@ class Items:
             self.y = -5
 
     def down(self, event):
-        if not self.bladebool:
+        if not self.bladebool and self.cutscene_over:
             self.downpressed = True
             self.canvas.itemconfig(self.playersprite, image=self.psprite)
             self.facing = 2

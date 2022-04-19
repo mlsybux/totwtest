@@ -15,7 +15,7 @@ ind = 0
 player = Databanks("Player", 0)
 #wood, stone, coal, trees, swords, axes
 #playerInventory = [10, 10, 10, 0, 10, 50]
-player.loadinventory([15, 9, 0, 0, 0, 50])
+#player.loadinventory([15, 9, 0, 0, 0, 50])
 stats = 100
 chosen_envi = "Forest"
 unlockedstages = 1
@@ -136,7 +136,6 @@ def load():
     r = 1
     inv = []
     for record in records:
-        print(record)
         if r <= 14:
             if r <= 7:
                 player.set_player_data(r-1, record)
@@ -460,15 +459,21 @@ def displaytext(a):
     advButton.grid(row=2, column=0)
 
 
+def load_game_button():
+    global thisArray
+    load()
+    changescreen(thisArray, "Home")
+
 #all the different GUIs
 def title():
+    global thisArray
     root.grid_columnconfigure(0, weight=1)
     root.grid_columnconfigure(4, weight=1)
 
     titleCard = Label(root, text = "Take Over\nThe\nWorld!!", font = ("Arial", 20), pady=25)
     newGameButton = Button(root, text="New Game", borderwidth = 3, command=lambda: changescreen(thisArray,
                                                                                                 "Opening Cutscene"))
-    loadGameButton = Button(root, text="Load Game", borderwidth = 3, command=lambda: changescreen(thisArray, "Home"))
+    loadGameButton = Button(root, text="Load Game", borderwidth = 3, command=load_game_button)
     creditsButton = Button(root, text="Credits", borderwidth=3, command=lambda: changescreen(thisArray, "Credits"))
 
     titleCard.grid(row=0, column=2)
@@ -724,11 +729,11 @@ def castle():
     root.bind("<KeyPress>", lambda e: castle_keypress(castle, e))
 
 #main running stuff
-#title()
+#load()
+title()
 #gameover()
 #explore()
-load()
-home()
+#home()
 
 
 #castle()

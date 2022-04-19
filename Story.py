@@ -280,10 +280,6 @@ class Scripts:
         #dictionary of scripts. remember: key: value
         self.archive = {}
         #every dang script bc idk how else to do this
-        self.archive["test"] = ["Player: hehe check this out", "Kuya: I like the colors on this one",
-                             "this one makes me happy but i might redo some colors",
-                             "Terkun: penguiiiiiin", "Looks like neopolitan ice cream",
-                             "Azretta: bonsai antlers lol"]
         self.archive["Kuya"] = ["Kuya: Hey there, kiddo.", "Kuya: You doing alright?"]
         self.archive["Craft"] = ["Time to make some more stuff!", "{CRAFT}"]
         self.archive["Parchment"] = ["There are records of your kingdom's activities lying on the table.",
@@ -301,6 +297,36 @@ class Scripts:
                                    "Azretta: Me? Queen? No, the queen is much more powerful than me.",
                                    "Azretta: But as her knight and protector of this forest, I'm afraid I can't"
                                    " allow you to pass.", "Azretta: En garde!"]
+        self.archive["Ekorre"] = ["Ekorre: Hm?", "Ekorre: Hm, hm, hm? Who's this?", "Player: Uh. Hello there?",
+                                  "Player: I'm--", "Ekorre: The intruder, right?",
+                                  "Ekorre: Shame, shame. For you, that is.", "Ekorre: For me, it's no shame at all!",
+                                  "Ekorre: It's been a while since I've had to chase someone out of my forest.",
+                                  "Player: Wait, you're the queen?!", "Ekorre: The one and only! I hear you defeated my"
+                                                                      " knight already, so it's time for me to kick you "
+                                                                      "out myself.", "Ekorre: Try not to bore me!"]
+        self.archive["Permata"] = ["Player: Kuya??", "Player: What the heck are you doing here?", "Kuya: Well...",
+                                   "Kuya: The one who was supposed to be here simply hasn't been created yet.",
+                                   "Kuya: So you're stuck with me.", "Player: I--", "Player: What????",
+                                   "Kuya: Never mind all that, just fight me."]
+
+        self.archive["Batu"] = ["Player: Kuya, again????", "Kuya: Yyyyyep", "Kuya: Ready to fight?", "Player: I guess?"]
+        self.archive["Dobhran"] = ["Dobhran: Ooh, who are you?", "Dobhran: Who are you, who are you?",
+                                   "Dobhran: Friend or enemy?", "Dobhran: Land or sea?",
+                                   "Dobhran: A bit of both, maybe?", "Player: I'm here to take over the ocean!",
+                                   "Player: The whole world, eventually.", "Dobhran: Ooh, sounds fun, sounds fun!",
+                                   "Dobhran: But that makes you an enemy."]
+        self.archive["Seileach"] = ["Player: Seriously?", "Kuya: Heyyyyy", "Player: Fine! Fine.",
+                                    "Player: I know how this goes already. Let's fight."]
+        self.archive["Terkun"] = ["Terkun: HONK", "Terkun: HOOONK HONK HONK", "Player: Woah that scarf looks comfy.",
+                                  "Terkun: HONK HONK HONKNOHONK", "Player: uuuuuh okay? Fight it is?",
+                                  "Terkun: h o n k"]
+        self.archive["Nahla"] = ["Player: ughhhhhh", "Kuya: Hi!", "Player: UGGGGHHHH"]
+        self.archive["Dreki"] = ["Player: Why", "Player: Just.", "Player: Why?",
+                                 "Kuya: ERROR 404. Reason doesn't exist."]
+        self.archive["Eldi"] = ["Player: KUYA", "Player: THIS IS THE FINAL BOSS", "Player: WHY ARE YOU HERE",
+                                "Kuya: The laziness and hubris of god himself"]
+
+
         self.archive["End"] = ["Hey.", "I don't know if anyone is going to read this, but...", "Did you have fun?",
                                "...", "I guess it doesn't matter that much.", "I hope you did, though.", "After all...",
                                "Kuya: Isn't that the point of a game?", "Kuya: Though, I guess...",
@@ -393,7 +419,13 @@ class Story:
                     health = :health,
                     attack = :attack,
                     flevel = :flevel,
-                    crowns = :crowns
+                    crowns = :crowns,
+                    wood = :wood,
+                    stone = :stone,
+                    coal = :coal,
+                    tree = :tree,
+                    sword = :sword,
+                    axe = :axe                   
                     WHERE oid = 1""",
                     {
                         'name': self.player.player_data[0],
@@ -402,7 +434,8 @@ class Story:
                         'health': 300,
                         'attack': 10,
                         'flevel': 0,
-                        'crowns': 0
+                        'crowns': 0,
+                        'wood': 0, 'stone': 0, 'coal': 0, 'tree': 0, 'sword': 0, 'axe': 0
                     })
         self.cur.execute("SELECT *, oid FROM player")
         self.conn.commit()
