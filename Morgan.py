@@ -2,6 +2,8 @@ from tkinter import *
 from Home import NPC
 from Story import *
 
+#classes Morgan
+
 class Morgan:
     def __init__(self, master, player):
         self.master = master

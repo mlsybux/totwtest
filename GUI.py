@@ -85,6 +85,42 @@ playerTitle = "Overlord"
 stopkeys = False
 
 #save/load stuff with funky databasessssss
+def reset():
+    global player
+    conn = connect('totw_save.db')
+    cur = conn.cursor()
+    cur.execute("""UPDATE player SET
+                    name = :name,
+                    title = :title,
+                    kingdom = :kingdom,
+                    health = :health,
+                    attack = :attack,
+                    flevel = :flevel,
+                    crowns = :crowns,
+                    chealth = :chealth,
+                    wood = :wood,
+                    stone = :stone,
+                    coal = :coal,
+                    tree = :tree,
+                    sword = :sword,
+                    axe = :axe
+                    WHERE oid = 1""",
+                {
+                    'name': player.player_data[0],
+                    'title': player.player_data[1],
+                    'kingdom': player.player_data[2],
+                    'health': 300,
+                    'attack': 10,
+                    'flevel': 0,
+                    'crowns': 0,
+                    'chealth': 300,
+                    'wood': 0, 'stone': 0, 'coal': 0, 'tree': 0, 'sword': 0, 'axe': 0
+
+                })
+    conn.commit()
+    conn.close()
+
+
 def save():
     global player
     conn = connect('totw_save.db')
@@ -96,7 +132,7 @@ def save():
                 health = :health,
                 attack = :attack,
                 flevel = :flevel,
-                crowns = :crowns
+                crowns = :crowns,
                 chealth = :chealth,
                 wood = :wood,
                 stone = :stone,
@@ -729,12 +765,13 @@ def castle():
     root.bind("<KeyPress>", lambda e: castle_keypress(castle, e))
 
 #main running stuff
+
 #load()
 title()
 #gameover()
 #explore()
 #home()
 
-
+#reset()
 #castle()
 root.mainloop()

@@ -3,6 +3,7 @@ from random import *
 from Home import *
 from Story import *
 
+#classes Resources, Bestiary, Boss, and Items
 
 class Resource:
     def __init__(self, can, rtype, rid):

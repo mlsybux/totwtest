@@ -1,6 +1,7 @@
 from tkinter import *
 from sqlite3 import *
 
+#classes Popups, Scripts, and Story
 
 class Popups:
     def __init__(self, master, ID, player):

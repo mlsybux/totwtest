@@ -1,6 +1,7 @@
 from tkinter import *
 from Story import *
 
+#classes Databanks, NPC, Home
 
 class Databanks:
     def __init__(self, type, ID):
@@ -48,6 +49,7 @@ class Databanks:
         if self.current_data[0] < 0:
             self.current_data[0] = 0
 
+
     def loadinventory(self, arr):
         self.ind = 0
         for x in arr:
@@ -56,6 +58,8 @@ class Databanks:
 
     def additem(self, n, a):
         self.inventory[n] = self.inventory[n] + a
+        if n == 4:
+            self.player_data[4] += a
 
     def subtractitem(self, n, a):
         self.inventory[n] = self.inventory[n] - a
