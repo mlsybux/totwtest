@@ -550,6 +550,15 @@ class Items:
         elif self.environment == "Cave":
             self.spawnitems([0, 6, 5, 0])
             self.loadenemies(1)
+        elif self.environment == "Ocean":
+            self.spawnitems([3, 0, 0, 0])
+            self.loadenemies(2)
+        elif self.environment == "Tundra":
+            self.spawnitems([1, 0, 0, 2])
+            self.loadenemies(1)
+        elif self.environment == "Volcano":
+            self.spawnitems([0, 7, 10, 0])
+            self.loadenemies(2)
         elif self.environment.startswith("Boss Fight"):
             #self.boss = self.bosses[self.environment[:]]
             self.bossfight()
