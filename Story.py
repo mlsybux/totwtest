@@ -1,5 +1,6 @@
 from tkinter import *
 from sqlite3 import *
+import numpy as np
 
 #classes Popups, Scripts, and Story
 
@@ -63,7 +64,9 @@ class Popups:
         self.inv_label = Label(self.inv_frame, text="Inventory: \nWood: " + str(self.player.inventory[0]) + "\nStone: "
                                                 + str(self.player.inventory[1]) + "\nCoal: " + str(self.player.inventory[2]) +
                                                 "\nAxes: " + str(self.player.inventory[5]) + "\nSwords: "
-                                                    + str(self.player.inventory[4]))
+                                                    + str(self.player.inventory[4]) + "\nFood: " + str(self.player.kingdomspecs[0,0])
+                                                    + "\nExperience: " + str(self.player.kingdomspecs[0,1])
+                                                    + "\nPoints: " + str(self.player.kingdomspecs[0,2]))
         self.inv_label.grid(row=0)
         #settings specific frames
         self.settings_frame = Frame(self.master, width=300, height=150)

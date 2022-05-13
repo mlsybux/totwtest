@@ -3,6 +3,7 @@ from sqlite3 import *
 from Items import *
 from Home import *
 from Morgan import *
+import numpy as np
 
 root = Tk()
 root.title("Take Over The World!!")
@@ -660,6 +661,7 @@ def explore():
     global stagelevels, stopkeys, higheststagelevel, player
     stopkeys = True
     stagelevels = stagelevels + 1
+    player.update_kingdomspecs()
     test = Items(root, stagelevels, player)
     if player.player_data[5] < stagelevels:
         player.set_player_data(5, stagelevels)

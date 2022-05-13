@@ -1,5 +1,6 @@
 from tkinter import *
 from Story import *
+import numpy as np
 
 #classes Databanks, NPC, Home
 
@@ -27,6 +28,12 @@ class Databanks:
             self.current_data = [300]
             #wood, stone, coal, trees, swords, axe
             self.inventory = [0, 0, 0, 0, 0, 0]
+            #food, experience, resource points                  Morgan added
+            #self.kingdomrsrcs = [0, 0, 0]
+            self.kingdomspecs=np.zeros((2,3))
+            self.kingdomspecs[1,:] = 10
+            self.kingdomspecs[1,1]=1
+            self.kingdompop=10
 
     def set_player_data(self, x, n):
         #name, title, kingdom, health, attack, furthest level, crowns
@@ -68,6 +75,11 @@ class Databanks:
 
     def getinventory(self):
         return self.inventory
+
+    def update_kingdomspecs(self):                               # Added by Morgan
+        #food, experience, resource points, 2nd row is mult factor
+        self.kingdomspecs[0,:]+=self.kingdomspecs[1,:]*self.kingdompop    # increases with population
+        self.kingdompop += 10
 
 
 #class NPC will create NPC objects that have a text, a sprite, and coordinates
